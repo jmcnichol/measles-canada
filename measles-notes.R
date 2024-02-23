@@ -3,7 +3,7 @@
 
 nsims <- 5 #number of simulations
 pop.size <- 500 #total population size
-I0 <- 3 #initial number infected
+I0 <- 1 #initial number infected
 VacFraction = 0.9 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
 nstep <- 500 #number of events to simulate
@@ -35,6 +35,15 @@ bigdf= bind_rows(data, .id="simnum")
 ggplot(bigdf, aes(x=ctime, y=I, color=simnum))+geom_point() +
     facet_wrap(~simnum) # +  ylim(c(0,max(bigdf$S)*1.2))
 
+# outbreak plots as they would likely be reported by public health,
+# indicating n  new cases on day t with a bar of height n 
+tdata = lapply(data,convtime) # time now in 0, 1, 2, 3, .. max
+inctdata = lapply(tdata, addincidence) 
+ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geom_bar(stat="identity")+
+    facet_wrap(~simnum) 
+
+
+
 # if you have done a lot of simulations and you want the median and summary stats
 # then you must account for the fact that the times won't align. The function convtime 
 # handles this
@@ -46,6 +55,7 @@ for (k in 1:100) { #simulate 100 times
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
 }
 tdata = lapply(data,convtime) # time now in 0, 1, 2, 3, .. max
+
 tbigdf = bind_rows(tdata, .id="simnum") 
 sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
                                                   low5 = quantile(I, 0.05),
@@ -53,18 +63,13 @@ sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I),
 ggplot(sumdata, aes(x=time, y=Symptomatic))+geom_line() +
     geom_ribbon(inherit.aes = F,aes(x=time,ymin=low5, ymax=high5),alpha=0.3,fill="blue")
 
-
-# what about the distribution of outbreak sizes? 
-
-
-# get the incidence from the outbreak sims. Incidence: new cases. 
-# this should work on the data[[k]] output, and on the data frames after we convert the time
-addincidence <- function(outk) {
-    outk$incid = 0
-    newCases = diff(outk$E)
-    whereIncid= 1+which(newCases >= 1) # indices where there are incident cases
-    outk$incid[whereIncid] = newCases
-}
+# Here we make a histogram of the outbreak sizes
+inctdata=bind_rows(lapply(tdata, addincidence), .id="simnum") 
+outsizes = inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
+# with 1 infective, exposures mostly don't go anywhere, but get large relative to the 
+# suscpetible population size if they do take off. Note that this is with 8 days 
+# of exposure and no intervention. 
+ggplot(outsizes, aes(x=size))+geom_histogram()
 
 
 

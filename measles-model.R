@@ -65,3 +65,15 @@ convtime <- function(outk) {
     }
     return(res)
 }
+
+
+# get the incidence from the outbreak sims. Incidence: new cases. 
+# this works on the data[[k]] output, and on the analogous data frames 
+# after we convert the time to be 0,1,2, 3, instead of event times 
+addincidence <- function(outk) {
+    outk$incid = 0
+    newCases = diff(outk$E)
+    whereIncid= 1+ which(newCases >= 1) # indices where there are incident cases
+    outk$incid[whereIncid] = newCases[whereIncid-1] # put 'em in 
+    return(outk)
+}
