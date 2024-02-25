@@ -7,29 +7,31 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
     E <- x[3] #local variable for exposed
     I <- x[4] #local variable for infected
     R <- x[5] #local variable for recovered
-    Q <- x[6] # quarantined (for now, completely) 
+    Qs <- x[6] # quarantined people who won't end up in R (for now, completely) 
+    Qr <- x[7] # quarantined people who WILL end up in R (infected) 
     #      N <- X+Y+Z+R #total population size (subject to demographic change)
     with( #use with to simplify code
         as.list(params),
         {
-            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I+l*Q
+            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I+l*Qs + l*Qr
             if (total.rate > 0) { # events : new infection (S to S-1, E to E+1), vax an S (S to S-1, R to R+1), quar an S (S-1, Q+1)
                 # progress an E (E-1, I+1) , quar an E (E-1, Q+1), rec an I (I-1, R+1), quar an I (I-1, Q+1), 
-                # release a Q (Q-1, S+1 i suppose), wane an R (R-1 , S+1) 
+                # release a Qs (Qs-1, S+1), release a Qr (Qr-1, S+1) 
                 tau <- rexp(n=1,rate=total.rate) #inter-event time
-                new.xyz <- c(S,E,I,R,Q) #initialize a local variable at previous state variable values
+                new.xyz <- c(S,E,I,R,Qs,Qr) #initialize a local variable at previous state variable values (not strictly necessary)
                 U <- runif(1) # uniform random deviate
                 #             new.xyz<-c(X,Y,Z-1) 
-                new.xyz <-c(S+1, E, I, R, Q-1) # last event is release a Q , i'm taking waning an R out 
+                new.xyz <-c(S, E, I, R+1, Qs, Qr-1) # last event is release a Qr (to R) (I removed waning an R, immunity lasts too long) 
                 # for each event, if U < (sum up to that one) we say we are going to do that one. If none of the other ifs are true
                 # that's the one that happens. this results in each event having the correct probability. 
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I)/total.rate) new.xyz <- c(S, E, I-1, R, Q+1) # quar an I
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Q) # rec an I
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E)/total.rate) new.xyz <- c(S, E-1, I, R, Q+1) # quar an E
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E)/total.rate) new.xyz <- c(S, E-1, I+1, R, Q) # progress an E
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S )/total.rate) new.xyz <- c(S-1, E, I+1, R, Q+1) # quar an S
-                if (U<=(beta*(I+ c*E)*S + v*S)/total.rate) new.xyz <- c(S, E, I, R+1, Q) # vax an S
-                if (U<=(beta*(I+ c*E)*S )/total.rate) new.xyz <- c(S-1, E+1, I, R, Q) # new infection
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I +l*Qs)/total.rate) new.xyz <- c(S+1, E, I, R, Qs-1, Qr) # release a Qs
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qr+1) # quar an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Qs, Qr) # rec an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E)/total.rate) new.xyz <- c(S, E-1, I, R, Qs, Qr+1) # quar an E (dubious. they'd probably infect someone..) 
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E)/total.rate) new.xyz <- c(S, E-1, I+1, R,  Qs, Qr) # progress an E
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S )/total.rate) new.xyz <- c(S-1, E, I+1, R, Qs+1, Qr) # quar an S
+                if (U<=(beta*(I+ c*E)*S + v*S)/total.rate) new.xyz <- c(S, E, I, R+1,  Qs, Qr) # vax an S
+                if (U<=(beta*(I+ c*E)*S )/total.rate) new.xyz <- c(S-1, E+1, I, R,  Qs, Qr) # new infection
                 c(tau,new.xyz) #store result
             } else { 
                 return(NA) } 
@@ -39,8 +41,8 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
 
 # iterate the onestep function to simulate an outbreak (once)  
 SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
-    output <- array(dim=c(nstep+1,6)) # set up array to store results (time, S, E, I, R, Q) 
-    colnames(output) <- c("time","S", "E", "I", "R", "Q") #name variables
+    output <- array(dim=c(nstep+1,7)) # set up array to store results (time, S, E, I, R, Qs, Qr) 
+    colnames(output) <- c("time","S", "E", "I", "R", "Qs", "Qr") #name variables
     output[1,] <- x # first record of output is initial condition
     for (k in 1:nstep) { #iterate for nstep steps
         x <- SEIR.onestep(x,params)
@@ -54,14 +56,14 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
 
 
 # here's a function that harmonizes the time to 0, 1, 2, .. n days
-# this function works on one entry of 'data' , whose cols are "time"  "S"     "E"     "I"     "R"     "Q"     "ctime" 
+# this function works on one entry of 'data' , whose cols are "time"  "S"     "E"     "I"     "R"     "Qs" "Qr"  "ctime" 
 # cols 2:6 of the input have to be S E I R Q anad there has to be a col called ctime
 convtime <- function(outk) { 
     t=0:ceiling(max(outk$ctime)) 
-    res=data.frame(time=t, S=0, E=0, I=0, R=0, Q=0)
+    res=data.frame(time=t, S=0, E=0, I=0, R=0, Qs=0, Qr=0)
     for (k in 2:length(t)) { 
         ind = max(which(outk$ctime <= t[k]))
-        res[k, 2:(ncol(res))] = outk[ind, 2:6] # NOTE hard-coded variable cols , if 2:6 isn't SEIRQ there is a problem
+        res[k, 2:(ncol(res))] = outk[ind, 2:7] # NOTE hard-coded variable cols , if 2:7 isn't SEIRQs Qr there is a problem
     }
     return(res)
 }

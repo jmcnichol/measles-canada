@@ -7,7 +7,7 @@ I0 <- 1 #initial number infected
 VacFraction = 0.9 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
 nstep <- 500 #number of events to simulate
-xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Q=0) #initial conditions
+xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
 # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
 #  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
 b= 15*(1/8)/500 # beta = R0*gamma/N i think
@@ -27,7 +27,7 @@ for (k in 1:nsims) { #simulate nsims times
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
 }
 
-# ---- plot the outbreak simulations
+# ---- plot the outbreak simulations ---- 
 
 # merge them 
 bigdf= bind_rows(data, .id="simnum")
@@ -43,11 +43,13 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
     facet_wrap(~simnum) 
 
 
+# ---- do more simulatoins and plot median, quantiles; distribution of outbreak sizes ---- 
 
 # if you have done a lot of simulations and you want the median and summary stats
 # then you must account for the fact that the times won't align. The function convtime 
 # handles this
 
+# NOTE the next part over-writes the earlier part ... 
 # we can run more simulations, group them by the harmonized time, and plot stats (median, quantiles) 
 # for the outbreaks over time: 
 for (k in 1:100) { #simulate 100 times
@@ -70,6 +72,21 @@ outsizes = inctdata %>% group_by(simnum) %>% summarise(size = sum(incid))
 # suscpetible population size if they do take off. Note that this is with 8 days 
 # of exposure and no intervention. 
 ggplot(outsizes, aes(x=size))+geom_histogram()
+
+
+# ---- next steps for simulations ---- 
+
+# (1) sanity and reality checks : continue. Time course, compared to reported outbreaks; sizes
+
+# (2) what interventions are we modelling? put these in. relates to (1) 
+# because the outbreaks we compare to in the reality checks probably had 
+# some interventions in place 
+
+# (3) decide what to model: schools, and communities larger than schools, and what interventions
+
+# (4) model the thigns in (3) and create some plots and summaries 
+
+# (5) sensitivity analysis 
 
 
 
