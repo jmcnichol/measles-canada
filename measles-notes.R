@@ -1,9 +1,15 @@
+library(ggplot2)
+library(dplyr)
+library(readr) 
+setwd("~/measles-canada/") # set to the location of the repo on your computer
+source("measles-model.R")  # read the model functions
 
+# ---- baseline: simulations with the model without interventions --- 
 # script: create a few simulations 
 
 nsims <- 5 #number of simulations
 pop.size <- 500 #total population size
-I0 <- 1 #initial number infected
+I0 <- 3 #initial number infected
 VacFraction = 0.9 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
 nstep <- 500 #number of events to simulate
@@ -12,13 +18,14 @@ xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial 
 #  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
 b= 15*(1/8)/500 # beta = R0*gamma/N i think
 params <- list(beta = b,
-               c=0.5,
-               v=0, # for now don't do a supplementary vaccination program 
-               qs = 0,
-               qi=0,
+               c=0.2, # the Es are a little infectious -- pre-symptom 
+               v=0, # rate of vaccination of S 
+               qs = 0, # rate we find and quarantine susceptible people 
+               qspep = 0, # quarantine and/or PEP for exposed people
+               qi=0, # quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
-               k=1/6, # mean E of 6 days 
-               gamma=1/8) # 8 day infectiousness ) # parameters
+               k=1/6, # mean E duration of 6 days before infectiousness
+               gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
 
 data <- vector(mode='list',length=nsims) #initialize list to store the output
 set.seed(1) #set seed
@@ -73,18 +80,56 @@ outsizes = inctdata %>% group_by(simnum) %>% summarise(size = sum(incid))
 # of exposure and no intervention. 
 ggplot(outsizes, aes(x=size))+geom_histogram()
 
+# ---- data on vaccination --- 
+abschoolvax = read_csv("Data/Vaccination/Alberta school coverage by geography.csv") %>% 
+    filter(Sex=="Both")
+ggplot(abschoolvax, aes(x=Geography, y=`Immunization Percent`, fill=`Immunization Type`))+
+    geom_bar(stat="identity", position="dodge") +
+    scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+
+abother= read_csv("Data/Vaccination/Alberta childhood coverage by geography.csv")
+# here there are much more highly-resolved geographies (subzones) 
+
+ggplot(abother, aes(x=`Immunization Percent`, fill=`Immunization Type`))+
+    geom_histogram(position = "dodge", alpha=0.9)+facet_wrap(~`Immunization Type`,nrow = 2)
+# hm. kind of hard to see 
+
+ggplot(abother, aes(x=`Immunization Type`,y=`Immunization Percent`))+
+    geom_violin(fill="blue",alpha=0.5)+geom_jitter(alpha=0.5)+
+    scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+# yikes they go down pretty low ! probably not reliable for the very low ones
+# they'd have had lots of measles already ... wouldn't they? 
+
+vchschools = read_csv("Data/Vaccination/VCH school coverage.csv")
+glimpse(vchschools)
+ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey",alpha=0.5)
+
+# we should add a few more from the table J added in the google doc
+# but already these figures give a sense of what the variability is 
+
+
 
 # ---- next steps for simulations ---- 
 
-# (1) sanity and reality checks : continue. Time course, compared to reported outbreaks; sizes
+# (1) sanity and reality checks : continue. 
+# Time course, compared to reported outbreaks; sizes
+# CC added outbreak reports to the google doc. These all had several interventions 
+# in place and probably effective pop sizes in the 1000s, with 
+# outbreaks of 20-125 cases taking about 60 days , larger outbreaks of course take longer
+# (Lyon 400 in 18 months) ; Messina 59 cases in Feb-August 
 
 # (2) what interventions are we modelling? put these in. relates to (1) 
 # because the outbreaks we compare to in the reality checks probably had 
-# some interventions in place 
+# some interventions in place (yes. ) 
+
+# notes for interventions: 
+# we need v, qs, qspep, qi 
+# v: 
 
 # (3) decide what to model: schools, and communities larger than schools, and what interventions
 
-# (4) model the thigns in (3) and create some plots and summaries 
+# (4) model the things in (3) and create some plots and summaries 
+# this should use the data javad has input 
 
 # (5) sensitivity analysis 
 

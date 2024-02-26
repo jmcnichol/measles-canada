@@ -13,7 +13,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
     with( #use with to simplify code
         as.list(params),
         {
-            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I+l*Qs + l*Qr
+            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qpep*E+ gamma*I+qi*I+l*Qs + l*Qr
             if (total.rate > 0) { # events : new infection (S to S-1, E to E+1), vax an S (S to S-1, R to R+1), quar an S (S-1, Q+1)
                 # progress an E (E-1, I+1) , quar an E (E-1, Q+1), rec an I (I-1, R+1), quar an I (I-1, Q+1), 
                 # release a Qs (Qs-1, S+1), release a Qr (Qr-1, S+1) 
@@ -24,13 +24,13 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
                 new.xyz <-c(S, E, I, R+1, Qs, Qr-1) # last event is release a Qr (to R) (I removed waning an R, immunity lasts too long) 
                 # for each event, if U < (sum up to that one) we say we are going to do that one. If none of the other ifs are true
                 # that's the one that happens. this results in each event having the correct probability. 
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I +l*Qs)/total.rate) new.xyz <- c(S+1, E, I, R, Qs-1, Qr) # release a Qs
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qr+1) # quar an I
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Qs, Qr) # rec an I
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qs*E)/total.rate) new.xyz <- c(S, E-1, I, R, Qs, Qr+1) # quar an E (dubious. they'd probably infect someone..) 
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I +l*Qs)/total.rate) new.xyz <- c(S+1, E, I, R, Qs-1, Qr) # release a Qs
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qr+1) # quar an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Qs, Qr) # rec an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E)/total.rate) new.xyz <- c(S, E-1, I, R, Qs, Qr+1) # quar or PEP an E 
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E)/total.rate) new.xyz <- c(S, E-1, I+1, R,  Qs, Qr) # progress an E
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S )/total.rate) new.xyz <- c(S-1, E, I+1, R, Qs+1, Qr) # quar an S
-                if (U<=(beta*(I+ c*E)*S + v*S)/total.rate) new.xyz <- c(S, E, I, R+1,  Qs, Qr) # vax an S
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S )/total.rate) new.xyz <- c(S-1, E, I, R, Qs+1, Qr) # quar an S
+                if (U<=(beta*(I+ c*E)*S + v*S)/total.rate) new.xyz <- c(S-1, E, I, R+1,  Qs, Qr) # vax an S
                 if (U<=(beta*(I+ c*E)*S )/total.rate) new.xyz <- c(S-1, E+1, I, R,  Qs, Qr) # new infection
                 c(tau,new.xyz) #store result
             } else { 
