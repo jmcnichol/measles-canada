@@ -19,10 +19,10 @@ xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial 
 b= 15*(1/8)/500 # beta = R0*gamma/N i think
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
-               v=0, # rate of vaccination of S 
-               qs = 0, # rate we find and quarantine susceptible people 
-               qspep = 0, # quarantine and/or PEP for exposed people
-               qi=0, # quarantine for infectious people (send home/isolate)
+               v=0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
+               qs = 0, # if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qi=0, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                k=1/6, # mean E duration of 6 days before infectiousness
                gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
@@ -107,6 +107,7 @@ ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
 
+# ADD SASK 
 
 
 # ---- next steps for simulations ---- 
@@ -124,7 +125,41 @@ ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey
 
 # notes for interventions: 
 # we need v, qs, qspep, qi 
-# v: 
+
+# v: in 2019 in BC they did 3800 vax in K-12, double the 2018 number (apprxo)
+# there are say 1900 extra vaccinations, which is about 3.06% of the unvaccinated, in a month 
+# which corresponds to a rate of r = log(1-0.0306)/(-30) or 0.001. Tiny. 
+# HOWEVR -- presumably this was concentrated in areas with cases. Hmph.
+# i suggest a wide range from 0.001 to 0.01 per day (up to 10x effect from targeting to the schools that had cases) 
+# note one of the Minnesota outbreaks also had numbers for vax
+
+# qs : rate at which S are identified and asked to isolate: this will be 
+# small but probably larger than v. let's say we ask them about 1/4 of the time
+# and it takes 2ish days to find them and only 1/2 of them do it and when they do 
+# it's only 50-100% effective, we could find more than 1/8 of them
+# qs = (1/2)*(1/4)*(1/2)*(1/2) # maybe it could be more effective 
+# range: from (1/3)*(1/6)*(1/2)*(1/2)  to (1/2)*(1/2)*(1/2)*(1) 
+# those numbers are: qs = 0.014 - 0.125 . Default in middle at 0.06 per day. 
+
+#  damn. some isolate, some get PEP , we don't know the denominators
+# 2017 Minnesota outbreak 65ish cases https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5687591/ 
+# 8200 exposed (126 contacts per case if they are all distinct, which they
+# won't be, so 200 contacts each with overlap?). About 150 got IG (pep)  and 568 got excluded (via the qs type of route) 
+# the trouble is that we don't know how many of the 8200 were offered PEP
+# or how many were in a setting from which people were excluded
+# BUT qs must be higher than 0.01 per day . But it cannot be 10% per day 
+# because  <10% of the exposed (S really) got qs'd. Note that "exposed" in the model means 
+# "got infected and aren't infectious yet". But "exposed" in the reports means "in S in the model" 
+# this makes this SO confusing: who would have been offered PEP? 
+# i think we set qspep at qs* (2/3) . it applies to a smaller population and
+# it got to about 1/3 as many people, but in the data, it would have applied to some 
+# people who were not actually infected (like in our model) .. 
+
+# 
+#
+# qi: rate of quarantining an I: approx =(1/ how long it would take to find someone) x prob they isolate x effectiveness of isolation 
+# qi = 1*0.9*0.8 = 0.72, ranges to (1/2 )*(0.6)*0.7 (2 days to find, less cooperative, less effective) 
+# qi =0.2 to 0.72 
 
 # (3) decide what to model: schools, and communities larger than schools, and what interventions
 
