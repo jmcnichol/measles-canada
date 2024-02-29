@@ -12,7 +12,7 @@ source("measles-model.R")  # read the model functions
 nsims <- 5 #number of simulations
 pop.size <- 500 #total population size
 I0 <- 3 #initial number infected
-VacFraction = 0.9 # -- VAX DATA WILL GO HERE -
+VacFraction = 0.75 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
 nstep <- 500 #number of events to simulate
 xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
@@ -21,10 +21,10 @@ xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial 
 b= 15*(1/8)/500 # beta = R0*gamma/N i think
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
-               v=0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
-               qs = 0, # if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
-               qspep = 0, # if on: 2/3 qs quarantine and/or PEP for exposed people
-               qi=0, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
+               v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
+               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qi=0.45, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                k=1/6, # mean E duration of 6 days before infectiousness
                gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
@@ -61,6 +61,17 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
 # NOTE the next part over-writes the earlier part ... 
 # we can run more simulations, group them by the harmonized time, and plot stats (median, quantiles) 
 # for the outbreaks over time: 
+params <- list(beta = b,
+               c=0.2, # the Es are a little infectious -- pre-symptom 
+               v=0.0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
+               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qi=0.5, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
+               l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
+               k=1/6, # mean E duration of 6 days before infectiousness
+               gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
+
+
 for (k in 1:100) { #simulate 100 times
     data[[k]] <- as.data.frame(SEIR.model(xstart,params,nstep))
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
@@ -73,6 +84,9 @@ sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I),
                                                   high5=quantile(I, 0.95))
 ggplot(sumdata, aes(x=time, y=Symptomatic))+geom_line() +
     geom_ribbon(inherit.aes = F,aes(x=time,ymin=low5, ymax=high5),alpha=0.3,fill="blue")
+
+ggplot(tbigdf, aes(x=time, y=Qr, color=simnum))+geom_line()+theme(legend.position = "off")
+# what's still going after t=150 that is making these plots so long? 
 
 # Here we make a histogram of the outbreak sizes
 inctdata=bind_rows(lapply(tdata, addincidence), .id="simnum") 

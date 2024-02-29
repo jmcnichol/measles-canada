@@ -27,7 +27,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
                 # for each event, if U < (sum up to that one) we say we are going to do that one. If none of the other ifs are true
                 # that's the one that happens. this results in each event having the correct probability. 
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I +l*Qs)/total.rate) new.xyz <- c(S+1, E, I, R, Qs-1, Qr) # release a Qs
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qr+1) # quar an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qs, Qr+1) # quar an I
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Qs, Qr) # rec an I
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E)/total.rate) new.xyz <- c(S, E-1, I, R, Qs, Qr+1) # quar or PEP an E 
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E)/total.rate) new.xyz <- c(S, E-1, I+1, R,  Qs, Qr) # progress an E
@@ -48,7 +48,7 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
     colnames(output) <- c("time","S", "E", "I", "R", "Qs", "Qr") #name variables
     output[1,] <- x # first record of output is initial condition
     for (k in 1:nstep) { #iterate for nstep steps
-        x <- SEIR.onestep(x,params)
+      x <- SEIR.onestep(x,params)
         ## when Q is turned on the else gives an error on the first iter
         if (any(is.na(x))) {
             break 
