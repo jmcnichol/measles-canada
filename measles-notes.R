@@ -1,10 +1,10 @@
 library(ggplot2)
 library(dplyr)
 library(readr) 
-setwd("~/measles-canada/") # set to the location of the repo on your computer
+#setwd("~/measles-canada/") # set to the location of the repo on your computer
 source("measles-model.R")  # read the model functions
 
-# ---- baseline: simulations with the model without interventions --- 
+#### ---- baseline: simulations with the model without interventions --- ####
 # script: create a few simulations 
 
 nsims <- 5 #number of simulations
@@ -107,8 +107,65 @@ ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
 
-# ADD SASK 
+# Sask -- the sask data has recoreded doses for a lot of ages!
 
+#using "read.csv" because Jennifer hates the tidyverse
+skvax <- read.csv("Data/Vaccination/Saskatchewan coverage 2018.csv",skip=2,header=F)
+#first header was age so lets make an age variable
+sk.age <- scan("Data/Vaccination/Saskatchewan coverage 2018.csv", nlines = 1, sep = ",", what = character())
+#second header was dose
+sk.dose <- scan("Data/Vaccination/Saskatchewan coverage 2018.csv", nlines = 1, skip=1, sep = ",", what = character())
+names(skvax) <- paste0(sk.age," ",sk.dose) #combines the two-line header
+library(reshape2)
+skvax <- melt(skvax) #the data was originally in "wide" format... 
+names(skvax) <- c("Jurisdiction","Immunization Type","Immunization Percent") #using col names to match ab data
+
+ggplot(skvax, aes(x=`Immunization Type`,y=`Immunization Percent`))+
+  geom_violin(fill="blue",alpha=0.5)+geom_jitter(alpha=0.5)+
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+
+# this is all of the data by jurisdiction -- kinda silly 
+ggplot(skvax, aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
+  geom_bar(stat="identity", position="dodge") +
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 
+
+# look at doses by age 5
+skvax %>%
+  filter(str_detect(`Immunization Type`,"^5 years 2 doses|24 months 2 dose|24 months 1 dose")) %>%
+  ggplot(aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
+  geom_bar(stat="identity", position="dodge") +
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 
+
+## looking at 1 dose all ages
+skvax %>%
+  filter(str_detect(`Immunization Type`,"1 dose")) %>%
+  ggplot(aes(x=`Immunization Type`,y=`Immunization Percent`))+
+  geom_violin(fill="blue",alpha=0.5)+geom_jitter(alpha=0.5)+
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+
+## looking at 2 doses
+skvax %>%
+  filter(str_detect(`Immunization Type`,"2 doses")) %>%
+  ggplot(aes(x=`Immunization Type`,y=`Immunization Percent`))+
+  geom_violin(fill="blue",alpha=0.5)+geom_jitter(alpha=0.5)+
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+
+# all of sask
+# filter by age 2 and 7 to compare to AB data
+skvax %>%
+  filter(str_detect(`Immunization Type`,"^7 years 2 doses|24 months 1 dose")) %>%
+  ggplot(aes(x=`Immunization Percent`, fill=`Immunization Type`))+
+  geom_histogram(position = "dodge", alpha=0.9, binwidth=0.9) +
+  facet_wrap(~`Immunization Type`,nrow = 2)
+
+skvax %>%
+  filter(str_detect(`Immunization Type`,"^7 years 2 doses|24 months 1 dose")) %>%
+  ggplot(aes(x=`Immunization Type`,y=`Immunization Percent`))+
+  geom_violin(fill="blue",alpha=0.5)+geom_jitter(alpha=0.5)+
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
+
+
+### sask has good vaxination rates :) 
 
 # ---- next steps for simulations ---- 
 
