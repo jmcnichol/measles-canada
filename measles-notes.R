@@ -125,8 +125,33 @@ ggplot(skvax, aes(x=`Immunization Type`,y=`Immunization Percent`))+
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
 
 # this is all of the data by jurisdiction -- kinda silly 
+<<<<<<< Updated upstream
+=======
+# CC: maybe but it does highlight some higher-risk areas . we should use a colour palette 
+# that isn't ordered so we can see which green /bule it is that's low in the teenagers
+# JM: ok see the next 2 plots
+
+#a clarer colour set -- ugly but works (replace Set1 with a different brewer palette if you want)
+colos <- colorRampPalette(brewer.pal(name="Set1", n = 8))(14)
+>>>>>>> Stashed changes
 ggplot(skvax, aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
   geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values = colos) +
+  theme(legend.position = "bottom") +
+  scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 
+
+#reodering skvax to assign colours 
+skvax$`Immunization Type` <- factor(skvax$`Immunization Type`, levels=c("13 months 1 dose","18 months 1 dose","24 months 1 dose", "5 years 1 dose",
+                                                                        "19 months 2 doses", "24 months 2 doses", "5 years 2 doses","7 years 2 doses","13 years 2 doses","15 years 2 doses","17 years 2 doses"))
+library(RColorBrewer)
+colo1 <- colorRampPalette(c("darkred", "pink"))(4)
+colo2 <- colorRampPalette(c("darkblue", "lightblue"))(7)
+colo=c(colo1,colo2)
+
+ggplot(skvax, aes(x=Jurisdiction, y=`Immunization Percent`, fill=`Immunization Type` ))+
+  geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values = colo) +
+  theme(legend.position = "bottom") +
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 
 
 # look at doses by age 5
@@ -134,6 +159,7 @@ skvax %>%
   filter(str_detect(`Immunization Type`,"^5 years 2 doses|24 months 2 dose|24 months 1 dose")) %>%
   ggplot(aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
   geom_bar(stat="identity", position="dodge") +
+  scale_fill_manual(values = colos) +
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 
 
 ## looking at 1 dose all ages
