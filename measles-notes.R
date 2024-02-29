@@ -1,6 +1,8 @@
 library(ggplot2)
 library(dplyr)
 library(readr) 
+library(tidyr)
+library(stringr)
 #setwd("~/measles-canada/") # set to the location of the repo on your computer
 source("measles-model.R")  # read the model functions
 
@@ -50,7 +52,7 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
     facet_wrap(~simnum) 
 
 
-# ---- do more simulatoins and plot median, quantiles; distribution of outbreak sizes ---- 
+# ---- do more simulations and plot median, quantiles; distribution of outbreak sizes ---- 
 
 # if you have done a lot of simulations and you want the median and summary stats
 # then you must account for the fact that the times won't align. The function convtime 
@@ -107,9 +109,9 @@ ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
 
-# Sask -- the sask data has recoreded doses for a lot of ages!
+# Sask -- the sask data has recorded doses for a lot of ages!
 
-#using "read.csv" because Jennifer hates the tidyverse
+#using "read.csv" because Jennifer hates the tidyverse # lol cc hates remembering whether to skip or header blah blah 
 skvax <- read.csv("Data/Vaccination/Saskatchewan coverage 2018.csv",skip=2,header=F)
 #first header was age so lets make an age variable
 sk.age <- scan("Data/Vaccination/Saskatchewan coverage 2018.csv", nlines = 1, sep = ",", what = character())
@@ -125,6 +127,8 @@ ggplot(skvax, aes(x=`Immunization Type`,y=`Immunization Percent`))+
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
 
 # this is all of the data by jurisdiction -- kinda silly 
+# CC: maybe but it does highlight some higher-risk areas . we should use a colour palette 
+# that isn't ordered so we can see which green /bule it is that's low in the teenagers
 ggplot(skvax, aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
   geom_bar(stat="identity", position="dodge") +
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100)) 

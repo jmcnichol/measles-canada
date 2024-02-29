@@ -7,7 +7,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
     E <- x[3] #local variable for exposed
     I <- x[4] #local variable for infected
     R <- x[5] #local variable for recovered
-    ## does something need to happen in the initial Q to account for qi>0
+    ## does something need to happen in the initial Q to account for qi>0 --A: no. 
     Qs <- x[6] # quarantined people who won't end up in R (for now, completely) 
     Qr <- x[7] # quarantined people who WILL end up in R (infected) 
     #      N <- X+Y+Z+R #total population size (subject to demographic change)
@@ -22,7 +22,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
                 new.xyz <- c(S,E,I,R,Qs,Qr) #initialize a local variable at previous state variable values (not strictly necessary)
                 U <- runif(1) # uniform random deviate
                 #             new.xyz<-c(X,Y,Z-1) 
-                ## the thing below is called the same as the thing above... which one is it?? 
+                ## the thing below is called the same as the thing above... which one is it?? -A: holdover from the code i startd with; redundant
                 new.xyz <- c(S, E, I, R+1, Qs, Qr-1) # last event is release a Qr (to R) (I removed waning an R, immunity lasts too long) 
                 # for each event, if U < (sum up to that one) we say we are going to do that one. If none of the other ifs are true
                 # that's the one that happens. this results in each event having the correct probability. 
@@ -54,7 +54,7 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
             break 
             } else {output[k+1,] <- x} 
     }
-    output = output[ which(rowSums(output)>0), ] # only keep rows where rate was nonzero
+    output = output[ which(rowSums(output)>0), ] # only keep rows where some state was nonzero
 }
 
 
