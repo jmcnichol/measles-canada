@@ -13,7 +13,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
     with( #use with to simplify code
         as.list(params),
         {
-            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qpep*E+ gamma*I+qi*I+l*Qs + l*Qr
+            total.rate <-  beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I+l*Qs + l*Qr
             if (total.rate > 0) { # events : new infection (S to S-1, E to E+1), vax an S (S to S-1, R to R+1), quar an S (S-1, Q+1)
                 # progress an E (E-1, I+1) , quar an E (E-1, Q+1), rec an I (I-1, R+1), quar an I (I-1, Q+1), 
                 # release a Qs (Qs-1, S+1), release a Qr (Qr-1, S+1) 
