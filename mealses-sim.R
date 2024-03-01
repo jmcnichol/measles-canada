@@ -42,6 +42,8 @@ measles.sim <- function(vax.rate,pop.size,intervention=F){
     # need to update 
   }
   
+  
+  data <- vector(mode='list',length=nsims) #initialize list to store the output
   set.seed(12345)
   for (k in 1:nsims) { 
     data[[k]] <- as.data.frame(SEIR.model(xstart,params,nstep))
