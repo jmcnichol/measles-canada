@@ -50,7 +50,7 @@ measles.sim <- function(vax.rate,pop.size,intervention=F){
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
   }
   
-  return(bind_rows(data, .id="simnum"))
+  return(data)
 }
 
 ### results ####
