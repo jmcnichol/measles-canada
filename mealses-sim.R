@@ -13,7 +13,7 @@ source("measles-model.R")
 #' pop sizes: c(1000,8000)
 #' interventions: T/F (for now; perhaps we do partial int. later)
 #' 
-#' output: list of lists of SEIRQ pars and cum time for each sim
+#' output: df of SEIRQ pars and cum time for each sim
 
 measles.sim <- function(vax.rate,pop.size,intervention=F){
   #pop.size #total population size
@@ -47,9 +47,8 @@ measles.sim <- function(vax.rate,pop.size,intervention=F){
     data[[k]] <- as.data.frame(SEIR.model(xstart,params,nstep))
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
   }
-  #save the sim results into somthing identifiable and consistent...
-  #this is no intervetions, N=1000, vax rate=95%
-  return(data)
+  
+  return(bind_rows(data, .id="simnum"))
 }
 
 ### results ####
