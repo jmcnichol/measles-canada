@@ -7,6 +7,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
     E <- x[3] #local variable for exposed
     I <- x[4] #local variable for infected
     R <- x[5] #local variable for recovered
+    ## does something need to happen in the initial Q to account for qi>0 --A: no. 
     Qs <- x[6] # quarantined people who won't end up in R (for now, completely) 
     Qr <- x[7] # quarantined people who WILL end up in R (infected) 
     #      N <- X+Y+Z+R #total population size (subject to demographic change)
@@ -21,11 +22,12 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
                 new.xyz <- c(S,E,I,R,Qs,Qr) #initialize a local variable at previous state variable values (not strictly necessary)
                 U <- runif(1) # uniform random deviate
                 #             new.xyz<-c(X,Y,Z-1) 
-                new.xyz <-c(S, E, I, R+1, Qs, Qr-1) # last event is release a Qr (to R) (I removed waning an R, immunity lasts too long) 
+                ## the thing below is called the same as the thing above... which one is it?? -A: holdover from the code i startd with; redundant
+                new.xyz <- c(S, E, I, R+1, Qs, Qr-1) # last event is release a Qr (to R) (I removed waning an R, immunity lasts too long) 
                 # for each event, if U < (sum up to that one) we say we are going to do that one. If none of the other ifs are true
                 # that's the one that happens. this results in each event having the correct probability. 
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I +l*Qs)/total.rate) new.xyz <- c(S+1, E, I, R, Qs-1, Qr) # release a Qs
-                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qr+1) # quar an I
+                if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I+qi*I )/total.rate) new.xyz <- c(S, E, I-1, R, Qs, Qr+1) # quar an I
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E+ gamma*I)/total.rate) new.xyz <- c(S, E, I-1, R+1, Qs, Qr) # rec an I
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E+ qspep*E)/total.rate) new.xyz <- c(S, E-1, I, R, Qs, Qr+1) # quar or PEP an E 
                 if (U<=(beta*(I+ c*E)*S + v*S+ qs*S + k*E)/total.rate) new.xyz <- c(S, E-1, I+1, R,  Qs, Qr) # progress an E
@@ -33,6 +35,7 @@ SEIR.onestep <- function (x, params) { #function to calculate one step of stocha
                 if (U<=(beta*(I+ c*E)*S + v*S)/total.rate) new.xyz <- c(S-1, E, I, R+1,  Qs, Qr) # vax an S
                 if (U<=(beta*(I+ c*E)*S )/total.rate) new.xyz <- c(S-1, E+1, I, R,  Qs, Qr) # new infection
                 c(tau,new.xyz) #store result
+
             } else { 
                 return(NA) } 
         }
@@ -45,12 +48,13 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
     colnames(output) <- c("time","S", "E", "I", "R", "Qs", "Qr") #name variables
     output[1,] <- x # first record of output is initial condition
     for (k in 1:nstep) { #iterate for nstep steps
-        x <- SEIR.onestep(x,params)
+      x <- SEIR.onestep(x,params)
+        ## when Q is turned on the else gives an error on the first iter
         if (any(is.na(x))) {
             break 
-            } else { output[k+1,] <- x} 
+            } else {output[k+1,] <- x} 
     }
-    output = output[ which(rowSums(output)>0), ] # only keep rows where rate was nonzero
+    output = output[ which(rowSums(output)>0), ] # only keep rows where some state was nonzero
 }
 
 

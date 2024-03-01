@@ -1,6 +1,8 @@
 library(ggplot2)
 library(dplyr)
 library(readr) 
+library(tidyr)
+library(stringr)
 #setwd("~/measles-canada/") # set to the location of the repo on your computer
 source("measles-model.R")  # read the model functions
 
@@ -10,7 +12,7 @@ source("measles-model.R")  # read the model functions
 nsims <- 5 #number of simulations
 pop.size <- 500 #total population size
 I0 <- 3 #initial number infected
-VacFraction = 0.9 # -- VAX DATA WILL GO HERE -
+VacFraction = 0.75 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
 nstep <- 500 #number of events to simulate
 xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
@@ -19,10 +21,10 @@ xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial 
 b= 15*(1/8)/500 # beta = R0*gamma/N i think
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
-               v=0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
-               qs = 0, # if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
-               qspep = 0, # if on: 2/3 qs quarantine and/or PEP for exposed people
-               qi=0, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
+               v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
+               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qi=0.45, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                k=1/6, # mean E duration of 6 days before infectiousness
                gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
@@ -50,7 +52,7 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
     facet_wrap(~simnum) 
 
 
-# ---- do more simulatoins and plot median, quantiles; distribution of outbreak sizes ---- 
+# ---- do more simulations and plot median, quantiles; distribution of outbreak sizes ---- 
 
 # if you have done a lot of simulations and you want the median and summary stats
 # then you must account for the fact that the times won't align. The function convtime 
@@ -59,6 +61,17 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
 # NOTE the next part over-writes the earlier part ... 
 # we can run more simulations, group them by the harmonized time, and plot stats (median, quantiles) 
 # for the outbreaks over time: 
+params <- list(beta = b,
+               c=0.2, # the Es are a little infectious -- pre-symptom 
+               v=0.0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
+               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qi=0.5, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
+               l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
+               k=1/6, # mean E duration of 6 days before infectiousness
+               gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
+
+
 for (k in 1:100) { #simulate 100 times
     data[[k]] <- as.data.frame(SEIR.model(xstart,params,nstep))
     data[[k]]$ctime <- cumsum(data[[k]]$time) # cumulative
@@ -71,6 +84,9 @@ sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I),
                                                   high5=quantile(I, 0.95))
 ggplot(sumdata, aes(x=time, y=Symptomatic))+geom_line() +
     geom_ribbon(inherit.aes = F,aes(x=time,ymin=low5, ymax=high5),alpha=0.3,fill="blue")
+
+ggplot(tbigdf, aes(x=time, y=Qr, color=simnum))+geom_line()+theme(legend.position = "off")
+# what's still going after t=150 that is making these plots so long? 
 
 # Here we make a histogram of the outbreak sizes
 inctdata=bind_rows(lapply(tdata, addincidence), .id="simnum") 
@@ -107,9 +123,9 @@ ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
 
-# Sask -- the sask data has recoreded doses for a lot of ages!
+# Sask -- the sask data has recorded doses for a lot of ages!
 
-#using "read.csv" because Jennifer hates the tidyverse
+#using "read.csv" because Jennifer hates the tidyverse # lol cc hates remembering whether to skip or header blah blah 
 skvax <- read.csv("Data/Vaccination/Saskatchewan coverage 2018.csv",skip=2,header=F)
 #first header was age so lets make an age variable
 sk.age <- scan("Data/Vaccination/Saskatchewan coverage 2018.csv", nlines = 1, sep = ",", what = character())
@@ -125,15 +141,14 @@ ggplot(skvax, aes(x=`Immunization Type`,y=`Immunization Percent`))+
   scale_y_continuous(breaks=seq(0,100, by=10), limits=c(0,100))
 
 # this is all of the data by jurisdiction -- kinda silly 
-<<<<<<< Updated upstream
-=======
+
 # CC: maybe but it does highlight some higher-risk areas . we should use a colour palette 
 # that isn't ordered so we can see which green /bule it is that's low in the teenagers
 # JM: ok see the next 2 plots
 
 #a clarer colour set -- ugly but works (replace Set1 with a different brewer palette if you want)
 colos <- colorRampPalette(brewer.pal(name="Set1", n = 8))(14)
->>>>>>> Stashed changes
+
 ggplot(skvax, aes(x=`Immunization Type`, y=`Immunization Percent`, fill=Jurisdiction ))+
   geom_bar(stat="identity", position="dodge") +
   scale_fill_manual(values = colos) +
