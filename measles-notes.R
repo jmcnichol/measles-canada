@@ -10,7 +10,7 @@ source("measles-model.R")  # read the model functions
 # script: create a few simulations 
 
 nsims <- 5 #number of simulations
-pop.size <- 500 #total population size
+pop.size <- 300 #total population size
 I0 <- 3 #initial number infected
 VacFraction = 0.75 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
@@ -18,7 +18,7 @@ nstep <- 500 #number of events to simulate
 xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
 # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
 #  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
-b= 15*(1/8)/500 # beta = R0*gamma/N i think
+b= 15*(1/8)/pop.size # beta = R0*gamma/N i think
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
                v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
@@ -63,7 +63,7 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
 # for the outbreaks over time: 
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
-               v=0.0, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
+               v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
                qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
                qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
                qi=0.5, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
@@ -96,7 +96,8 @@ outsizes = inctdata %>% group_by(simnum) %>% summarise(size = sum(incid))
 # of exposure and no intervention. 
 ggplot(outsizes, aes(x=size))+geom_histogram()
 
-# ---- data on vaccination --- 
+
+### ---- data on vaccination --- ####
 abschoolvax = read_csv("Data/Vaccination/Alberta school coverage by geography.csv") %>% 
     filter(Sex=="Both")
 ggplot(abschoolvax, aes(x=Geography, y=`Immunization Percent`, fill=`Immunization Type`))+
