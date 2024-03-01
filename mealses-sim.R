@@ -13,7 +13,7 @@ source("measles-model.R")
 #' pop sizes: c(1000,8000)
 #' interventions: T/F (for now; perhaps we do partial int. later)
 #' 
-#' output: df of SEIRQ pars and cum time for each sim
+#' output: list of lists of SEIRQ pars and cum time for each sim
 
 measles.sim <- function(vax.rate,pop.size,intervention=F){
   #pop.size #total population size
