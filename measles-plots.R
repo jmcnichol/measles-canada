@@ -2,6 +2,8 @@
 library(ggplot2)
 library(ggpubr)
 
+### USE OUTPUT (combined DFs) FROM 'measles-sims.R'
+
 #### Symptomatic v time ########
 # c = 0.3, qi = 0.15
 sumdat.int.1000.5.plot <- ggplot(sumdat.int.1000.5, aes(x=time, y=Symptomatic, color = vax, fill = vax))+
