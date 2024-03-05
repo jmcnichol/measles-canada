@@ -10,25 +10,26 @@ source("measles-model.R")  # read the model functions
 #### ---- baseline: simulations with the model without interventions --- ####
 # script: create a few simulations 
 
-nsims <- 10 #number of simulations
-pop.size <- 1000 #total population size
+nsims <- 12 #number of simulations
+pop.size <- 8000 #total population size
 I0 <- 3 #initial number infected
-VacFraction = 0.75 # -- VAX DATA WILL GO HERE -
+VacFraction = 0.65 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
-nstep <- 5000 #number of events to simulate
+nstep <- 50000 #number of events to simulate
 xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
 # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
 #  R0=12-18 (we use 15 or 16) ; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
-b= 15*(1/8)/pop.size # beta = R0*gamma/N i think
+gamma= 1/4
+b= 15*(gamma)/pop.size # beta = R0*gamma/N i think
 params <- list(beta = b,
-               c=0.3, # the Es are a little infectious -- pre-symptom 
+               c=0.3, # the Es are a little infectious -- pre-rash 
                v=0.005, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
                qs = 0.03, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
                qspep = 0.02+0.03, # if on: pep at 2/3 (PEP for exposed people) + quarantine rate qs
                qi=0.15, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
-               k=1/6, # mean E duration of 6 days before infectiousness
-               gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
+               k=1/10, # mean E duration of 10 days before rash (WHO says 7-8 days) 
+               gamma=gamma) # 8 day infectiousness wo the qi  ) # parameters
 
 data <- vector(mode='list',length=nsims) #initialize list to store the output
 set.seed(1) #set seed
