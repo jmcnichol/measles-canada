@@ -15,13 +15,12 @@ source("measles-model.R")
 #' 
 #' output: list of lists of SEIRQ pars and cum time for each sim
 
-measles.sim <- function(vax.rate,pop.size,I0,pars){
+measles.sim <- function(vax.rate,nstep,pop.size,I0,pars){
   #pop.size #total population size
   
   nsims <- 1000 #number of simulations
   VacFraction = vax.rate # -- VAX DATA WILL GO HERE -
   S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
-  nstep <- 2000 #number of events to simulate
   xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
   # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
   #  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
@@ -72,13 +71,21 @@ params.weak <- list(
 #'Medium/weaker interventions: c=0.3, v=0, qs =0.02, qspep = 0.04, qi = 0.1
 
 #weak interventions
-weak.1000.95 <- measles.sim(0.95,1000,2,T)
-weak.1000.90 <- measles.sim(0.90,1000,2,T)
-weak.1000.85 <- measles.sim(0.85,1000,2,T)
-weak.1000.80 <- measles.sim(0.80,1000,2,T)
-weak.1000.75 <- measles.sim(0.75,1000,2,T)
-weak.1000.70 <- measles.sim(0.70,1000,2,T)
-weak.1000.65 <- measles.sim(0.65,1000,2,T)
+weak.1000.95 <- measles.sim(0.95,500,1000,2,params.weak)
+weak.1000.90 <- measles.sim(0.90,500,1000,2,params.weak)
+weak.1000.85 <- measles.sim(0.85,500,1000,2,params.weak)
+weak.1000.80 <- measles.sim(0.80,500,1000,2,params.weak)
+weak.1000.75 <- measles.sim(0.75,500,1000,2,params.weak)
+weak.1000.70 <- measles.sim(0.70,500,1000,2,params.weak)
+weak.1000.65 <- measles.sim(0.65,500,1000,2,params.weak)
+
+strong.1000.95 <- measles.sim(0.95,1000,2,params.strong)
+strong.1000.90 <- measles.sim(0.90,1000,2,params.strong)
+strong.1000.85 <- measles.sim(0.85,1000,2,params.strong)
+strong.1000.80 <- measles.sim(0.80,1000,2,params.strong)
+strong.1000.75 <- measles.sim(0.75,1000,2,params.strong)
+strong.1000.70 <- measles.sim(0.70,1000,2,params.strong)
+strong.1000.65 <- measles.sim(0.65,1000,2,params.strong)
 
 
 
