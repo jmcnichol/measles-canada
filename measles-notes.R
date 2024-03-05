@@ -3,28 +3,29 @@ library(dplyr)
 library(readr) 
 library(tidyr)
 library(stringr)
+library(RColorBrewer)
 #setwd("~/measles-canada/") # set to the location of the repo on your computer
 source("measles-model.R")  # read the model functions
 
 #### ---- baseline: simulations with the model without interventions --- ####
 # script: create a few simulations 
 
-nsims <- 5 #number of simulations
-pop.size <- 300 #total population size
+nsims <- 10 #number of simulations
+pop.size <- 1000 #total population size
 I0 <- 3 #initial number infected
 VacFraction = 0.75 # -- VAX DATA WILL GO HERE -
 S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
-nstep <- 500 #number of events to simulate
+nstep <- 5000 #number of events to simulate
 xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
 # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
-#  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
+#  R0=12-18 (we use 15 or 16) ; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
 b= 15*(1/8)/pop.size # beta = R0*gamma/N i think
 params <- list(beta = b,
-               c=0.2, # the Es are a little infectious -- pre-symptom 
-               v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
-               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
-               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
-               qi=0.45, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
+               c=0.3, # the Es are a little infectious -- pre-symptom 
+               v=0.005, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
+               qs = 0.03, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.02+0.03, # if on: pep at 2/3 (PEP for exposed people) + quarantine rate qs
+               qi=0.15, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                k=1/6, # mean E duration of 6 days before infectiousness
                gamma=1/8) # 8 day infectiousness wo the qi  ) # parameters
@@ -41,16 +42,22 @@ for (k in 1:nsims) { #simulate nsims times
 # merge them 
 bigdf= bind_rows(data, .id="simnum")
 # if you have done relatively few simulations (say < 20) 
-ggplot(bigdf, aes(x=ctime, y=I, color=simnum))+geom_point() +
-    facet_wrap(~simnum) # +  ylim(c(0,max(bigdf$S)*1.2))
+ggplot(bigdf, aes(x=ctime, y=I, color=simnum))+geom_line() +
+    facet_wrap(~simnum)  +  xlim(c(0,100))
 
 # outbreak plots as they would likely be reported by public health,
 # indicating n  new cases on day t with a bar of height n 
 tdata = lapply(data,convtime) # time now in 0, 1, 2, 3, .. max
 inctdata = lapply(tdata, addincidence) 
 ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geom_bar(stat="identity")+
-    facet_wrap(~simnum) 
+    facet_wrap(~simnum) + xlim(c(0,100))
 
+inctdata=bind_rows(lapply(tdata, addincidence), .id="simnum") 
+mysizes = inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
+mysizes
+
+# the first one has 67 cases, let's plot it (so does the 7th one) 
+ggplot(filter(inctdata, simnum =="7"), aes(x=time, y=incid))+geom_bar(stat="identity")+ylab("Incidence")
 
 # ---- do more simulations and plot median, quantiles; distribution of outbreak sizes ---- 
 
@@ -64,8 +71,8 @@ ggplot(bind_rows(inctdata, .id="simnum"), aes(x=time, y=incid, fill=simnum))+geo
 params <- list(beta = b,
                c=0.2, # the Es are a little infectious -- pre-symptom 
                v=0.05, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
-               qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
-               qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
+               qs = 0.03, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
+               qspep = 0.02, # if on: 2/3 qs quarantine and/or PEP for exposed people
                qi=0.5, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                k=1/6, # mean E duration of 6 days before infectiousness
@@ -119,7 +126,7 @@ ggplot(abother, aes(x=`Immunization Type`,y=`Immunization Percent`))+
 
 vchschools = read_csv("Data/Vaccination/VCH school coverage.csv")
 glimpse(vchschools)
-ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram(fill="blue",color="grey",alpha=0.5)
+ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram()
 
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
@@ -238,7 +245,7 @@ skvax %>%
 # it's only 50-100% effective, we could find more than 1/8 of them
 # qs = (1/2)*(1/4)*(1/2)*(1/2) # maybe it could be more effective 
 # range: from (1/3)*(1/6)*(1/2)*(1/2)  to (1/2)*(1/2)*(1/2)*(1) 
-# those numbers are: qs = 0.014 - 0.125 . Default in middle at 0.06 per day. 
+# those numbers are: qs = 0.014 - 0.125 . Default in middle at 0.06 per day. ? could be too high? 
 
 #  damn. some isolate, some get PEP , we don't know the denominators
 # 2017 Minnesota outbreak 65ish cases https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5687591/ 

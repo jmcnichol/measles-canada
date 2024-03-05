@@ -54,7 +54,7 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
             break 
         } else {output[k+1,] <- x} 
       
-      if (x[5] == 0 & x[4] == 0){break}
+      if (x[3] == 0 & x[4] == 0){break}
     }
     output = output[ which(rowSums(output)>0), ] # only keep rows where some state was nonzero
 }
