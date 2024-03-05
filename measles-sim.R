@@ -146,19 +146,7 @@ int.8000.65 <- measles.sim(0.65,8000,T)
 # manipulate the sim output to get outbreak size and symptomatic -- yes, i change the file name everytime, quick and dirty ;) 
 
 library(parallel)
-library(foreach)
-d = list("0.95" = int.8000.95, "0.90" = int.8000.90)
 
-x <- foreach(i=1:length(2), .combine=rbind, .multicombine=TRUE) %do%  {
-  tdata = mclapply(d[[i]],convtime,mc.cores=4)
-  tbigdf = bind_rows(tdata, .id="simnum") 
-  sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                     low5 = quantile(I, 0.05),
-                                                     high5=quantile(I, 0.95))
-  
-  sumdata <- data.frame(sumdata, vax = as.factor(rep(names(d)[i])))
-  return(list(sumdata))
-  }
 
 tdata = mclapply(int.8000.95,convtime,mc.cores=4)
 tbigdf = bind_rows(tdata, .id="simnum") 
