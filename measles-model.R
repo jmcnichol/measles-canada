@@ -52,7 +52,9 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
         ## when Q is turned on the else gives an error on the first iter
         if (any(is.na(x))) {
             break 
-            } else {output[k+1,] <- x} 
+        } else {output[k+1,] <- x} 
+      
+      if (x[5] == 0 & x[4] == 0){break}
     }
     output = output[ which(rowSums(output)>0), ] # only keep rows where some state was nonzero
 }
@@ -67,7 +69,8 @@ convtime <- function(outk) {
     res=data.frame(time=t, S=0, E=0, I=0, R=0, Qs=0, Qr=0)
     for (k in 2:length(t)) { 
         ind = max(which(outk$ctime <= t[k]))
-        res[k, 2:(ncol(res))] = outk[ind, 2:7] # NOTE hard-coded variable cols , if 2:7 isn't SEIRQs Qr there is a problem
+        ind = last(filter(outk,ctime <= t[k]))
+        res[k, 2:(ncol(res))] = outk[which(outk$ctime <= t[k]), 2:7] # NOTE hard-coded variable cols , if 2:7 isn't SEIRQs Qr there is a problem
     }
     return(res)
 }
