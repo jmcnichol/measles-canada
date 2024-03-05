@@ -3,6 +3,7 @@ library(dplyr)
 library(readr) 
 library(tidyr)
 library(stringr)
+library(parallel) #for the mclapply function
 
 source("measles-model.R")
 
@@ -46,6 +47,28 @@ measles.sim <- function(vax.rate,nstep,pop.size,I0,pars){
   return(data)
 }
 
+# this fun does some post processing and outputs two dfs of all simulations. theyre contained in a list. -- use these for plot inputs
+useful.stuff <- function(d){
+  e = d 
+  for (i in 1:length(d)){
+    tdata = mclapply(d[[i]],convtime,mc.cores=4)
+    tbigdf = bind_rows(tdata, .id="simnum") 
+    sumdata = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
+                                                      low5 = quantile(I, 0.05),
+                                                      high5=quantile(I, 0.95))
+    sumdata <- data.frame(sumdata, vax = as.factor(rep(names(d)[i])))
+    d[[i]] <- sumdata
+    inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
+    outsizes <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
+    outsizes <- data.frame(outsizes, vax = as.factor(rep(names(d)[i])))
+    e[[i]] <- outsizes
+  }
+  d <- bind_rows(d)
+  e <- bind_rows(e)
+  return(list("convtime"=d,"outsize"=e))
+}
+
+
 ##### parameters #####
 
 # STRONG INTERVETIONS 
@@ -79,146 +102,18 @@ weak.1000.75 <- measles.sim(0.75,500,1000,2,params.weak)
 weak.1000.70 <- measles.sim(0.70,500,1000,2,params.weak)
 weak.1000.65 <- measles.sim(0.65,500,1000,2,params.weak)
 
-strong.1000.95 <- measles.sim(0.95,1000,2,params.strong)
-strong.1000.90 <- measles.sim(0.90,1000,2,params.strong)
-strong.1000.85 <- measles.sim(0.85,1000,2,params.strong)
-strong.1000.80 <- measles.sim(0.80,1000,2,params.strong)
-strong.1000.75 <- measles.sim(0.75,1000,2,params.strong)
-strong.1000.70 <- measles.sim(0.70,1000,2,params.strong)
-strong.1000.65 <- measles.sim(0.65,1000,2,params.strong)
+strong.1000.95 <- measles.sim(0.95,500,1000,2,params.strong)
+strong.1000.90 <- measles.sim(0.90,500,1000,2,params.strong)
+strong.1000.85 <- measles.sim(0.85,500,1000,2,params.strong)
+strong.1000.80 <- measles.sim(0.80,500,1000,2,params.strong)
+strong.1000.75 <- measles.sim(0.75,500,1000,2,params.strong)
+strong.1000.70 <- measles.sim(0.70,500,1000,2,params.strong)
+strong.1000.65 <- measles.sim(0.65,500,1000,2,params.strong)
 
 
-
-
-
-
-
-
-### old results ####
-# results. naming convention: noint = no interventions, N = 1000, vax =95% for ex.
-noint.1000.95.5 <- measles.sim(0.95,1000,F)
-noint.1000.90.5 <- measles.sim(0.90,1000,F)
-noint.1000.85.5 <- measles.sim(0.85,1000,F)
-noint.1000.80.5 <- measles.sim(0.80,1000,F)
-noint.1000.75.5 <- measles.sim(0.75,1000,F)
-noint.1000.70.5 <- measles.sim(0.70,1000,F)
-noint.1000.65.5 <- measles.sim(0.65,1000,F)
-
-int.1000.95 <- measles.sim(0.95,1000,T)
-int.1000.90 <- measles.sim(0.90,1000,T)
-int.1000.85 <- measles.sim(0.85,1000,T)
-int.1000.80 <- measles.sim(0.80,1000,T)
-int.1000.75 <- measles.sim(0.75,1000,T)
-int.1000.70 <- measles.sim(0.70,1000,T)
-int.1000.65 <- measles.sim(0.65,1000,T)
-
-#news pars 
-#'  v=0.02, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S 
-#'  qs = 0, # does not make much diff if on: 0.06 (qs = 0.014 - 0.125 ) rate we find and quarantine susceptible people 
-#'  qspep = 0.04, # if on: 2/3 qs quarantine and/or PEP for exposed people
-#'  qi=0.08, # if
-
-int.1000.95.5 <- measles.sim(0.95,1000,T)
-int.1000.90.5 <- measles.sim(0.90,1000,T)
-int.1000.85.5 <- measles.sim(0.85,1000,T)
-int.1000.80.5 <- measles.sim(0.80,1000,T)
-int.1000.75.5 <- measles.sim(0.75,1000,T)
-int.1000.70.5 <- measles.sim(0.70,1000,T)
-int.1000.65.5 <- measles.sim(0.65,1000,T)
-
-
-noint.8000.95 <- measles.sim(0.95,1000,F)
-noint.8000.90 <- measles.sim(0.90,1000,F)
-noint.8000.85 <- measles.sim(0.85,1000,F)
-noint.8000.80 <- measles.sim(0.80,1000,F)
-noint.8000.75 <- measles.sim(0.75,1000,F)
-noint.8000.70 <- measles.sim(0.70,1000,F)
-noint.8000.65 <- measles.sim(0.65,1000,F)
-
-int.8000.95 <- measles.sim(0.95,8000,T)
-int.8000.90 <- measles.sim(0.90,8000,T)
-int.8000.85 <- measles.sim(0.85,8000,T)
-int.8000.80 <- measles.sim(0.80,8000,T)
-int.8000.75 <- measles.sim(0.75,8000,T)
-int.8000.70 <- measles.sim(0.70,8000,T)
-int.8000.65 <- measles.sim(0.65,8000,T)
-
-# manipulate the sim output to get outbreak size and symptomatic -- yes, i change the file name everytime, quick and dirty ;) 
-
-library(parallel)
-
-
-tdata = mclapply(int.8000.95,convtime,mc.cores=4)
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata1 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata1 <- data.frame(sumdata1, vax = as.factor(rep(0.95)))
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes1 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes1 <- data.frame(outsizes1, vax = as.factor(rep(0.95)))
-
-tdata = mclapply(int.8000.90,convtime,mc.cores=4) 
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata2 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata2 <- data.frame(sumdata2, vax = as.factor(rep(0.90)))
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes2 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes2 <- data.frame(outsizes2, vax = as.factor(rep(0.90)))
-
-tdata = mclapply(int.8000.85,convtime,mc.cores=4) 
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata3 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata3 <- data.frame(sumdata3, vax = as.factor(rep(0.85)))
-inctdata <- bind_rows(mclapply(tdata, addincidence, mc.cores=4), .id="simnum") 
-outsizes3 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes3 <- data.frame(outsizes3, vax = as.factor(rep(0.85)))
-
-tdata = mclapply(int.8000.80,convtime,mc.cores=4) 
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata4 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata4 <- data.frame(sumdata4, vax = as.factor(rep(0.80)))
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes4 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes4 <- data.frame(outsizes4, vax = as.factor(rep(0.80)))
-
-tdata = mclapply(int.8000.75,convtime,mc.cores=4) 
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata5 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata5 <- data.frame(sumdata5, vax = as.factor(rep(0.75)))
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes5 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes5 <- data.frame(outsizes5, vax = as.factor(rep(0.75)))
-
-tdata = mclapply(int.8000.70,convtime,mc.cores=4) 
-tbigdf = bind_rows(tdata, .id="simnum") 
-sumdata6 = tbigdf %>% group_by(time) %>% summarize(Symptomatic=median(I), 
-                                                   low5 = quantile(I, 0.05),
-                                                   high5=quantile(I, 0.95))
-sumdata6 <- data.frame(sumdata6, vax = as.factor(rep(0.70)))
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes6 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes6 <- data.frame(outsizes6, vax = as.factor(rep(0.70)))
-
-tdata = mclapply(int.8000.65,convtime,mc.cores=4) 
-inctdata <- bind_rows(mclapply(tdata, addincidence,mc.cores=4), .id="simnum") 
-outsizes7 <- inctdata %>% group_by(simnum) %>% summarise(size = sum(incid)) 
-outsizes7 <- data.frame(outsizes7, vax = as.factor(rep(0.65)))
-
-outsizes.8000.int <- rbind(outsizes1,outsizes2,outsizes3, outsizes4, outsizes5, outsizes6, outsizes7)
-sumdat.int.8000 <- rbind(sumdata1,sumdata2,sumdata3,sumdata4,sumdata5,sumdata6)
-
-
-
-
-
-
+#### combine results into dfs ####
+weak.1000.df <- useful.stuff(list("0.95" = weak.1000.95, "0.90" = weak.1000.90, 
+                  "0.85" = weak.1000.85, "0.80" = weak.1000.80,
+                  "0.75" = weak.1000.75, "0.70" = weak.1000.70,
+                  "0.65" = weak.1000.65))
 
