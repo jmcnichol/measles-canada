@@ -47,13 +47,13 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
     output <- data.frame("time" = 0,"S"=x[2], "E"=x[3], "I"=x[4], "R"=x[5], "Qs"=x[6], "Qr"=x[7],"ctime"=0,"day"=0,"inci"=0)
     ctime = inci = day = vector(mode = "numeric","length"=nstep) #vectors to save our calculated things...maybe add more later like for the converted time
     for (k in 1:nstep) { #iterate for nstep steps -- k is inside SEIR.onestep.......
-    #  if (x[3] == 0 & x[4] == 0){break} #if E and I are 0 then we done 
+      if (x[3] == 0 & x[4] == 0){break} #if E and I are 0 then we done 
       x <- SEIR.onestep(x,params)
       ctime[k] <- x[1] + sum(output[1:k,1])  # compute cumulative time 
       day[k] <- floor(ctime[k]) #time in days
       inci[k] <- as.numeric(output$E[k] < x[3]) # x[3] = E; this flags if there was an incident we will add it later
       ## when Q is turned on the else gives an error on the first iter
-        if (any(is.na(x)) | (x[3] ==0 & x[4] == 0)) {
+        if (any(is.na(x)) ) {
             break 
         } else {output[k+1,] <- c(x,ctime[k],day[k],inci[k])} 
     }
