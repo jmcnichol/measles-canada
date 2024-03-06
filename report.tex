@@ -88,12 +88,31 @@ NWT      & Recommended               & Not found
 \end{tabular}
 \end{table}
 
+\begin{figure}[h]
+\includegraphics[width=\linewidth]{report-figs/f1.png}
+\caption{AB coverage}
+\label{fig:abcov}
+\end{figure}
+
 Similarly, British Columbia’s regional MMR coverage ranges from 77 to 89\% at age 2 and 75 to 92\% at age 7, as of 2020 (the most recent year for which data are available). (http://www.bccdc.ca/health-professionals/data-reports/immunizations). Saskatchewan reports very high vaccination levels for measles, with all jurisdictions over 85\% coverage and the majority over 90\% (Figure 2).
+
+\begin{figure}[!h]
+\includegraphics[width=\linewidth]{report-figs/f2.png}
+\label{fig:skcov}
+\caption{SK coverage}
+\end{figure}
 
 In some jurisdictions, school data are also available. For example, Figure 3 shows Vancouver School Board’s vaccination data, with occasional very low reported rates, and the majority of schools with at least 65\% coverage.
 
+\begin{figure}[h!]
+\includegraphics[width=\linewidth]{report-figs/f3.png}
+\caption{VSB coverage}
+\label{fig:vsbcov}
+\end{figure}
+
 Overall, Canadian vaccination for measles ranges from 60\% or below in some jurisdictions to above 90\% in others, with an overall high average of approximately 90\%. While measles has been considered eradicated in Canada since 1998, and high continuing levels of protection mean that endemic transmission has not been established, communities with low vaccination rates are at risk of outbreaks if introductions do occur.
 
+\clearpage
 \subsection{Modelling Approach}
 We use a stochastic susceptible-exposed-infectious-recovered model with additional isolation compartments reflecting isolation of those who are susceptible and potentially exposed, or who have been infected but have not yet become symptomatic. The compartments are S: susceptible; E: exposed and not yet symptomatic (but some are already infectious prior to the onset of rash); I: symptomatic with rash (and infectious); R: recovered (immune); $Q_s$: not infected but isolating; $Q_r$: exposed and isolating or having received post-exposure prophylaxis (PEP). Susceptible individuals become infected at $a$ rate $b$ $(cE + I) S$, where $c$ reflects the fact that individuals become infectious approximately four days before the onset of rash. They are isolated at rate $q_s$ , and can be vaccinated via an additional public health vaccination effort at rate $v$. Exposed individuals are isolated or given PEP at rate $q_{spep}  = q_s + q_{pep}$, or enter the infectious (and transmitting) compartment at rate $k$, reflecting the (inverse of the) duration between infection and rash onset. Infectious individuals recover at rate $\gamma$ and are identified and isolated at rate $q_i$. Recovered individuals remain recovered; while immunity to measles may wane eventually, the waning rate is slow enough that in the $<1$ year time frame of the outbreaks considered here, we do not consider it.  We simulate the model with a Gillespie algorithm approach, computing the total rate for all events, sampling an exponential random variable to simulate the time until the next event, and then allocating which event occurs with the appropriate probability [REF].
 We use two model populations: 1000, reflecting a school or other small setting in the 100s with surrounding households and immediate contacts, and 8000, reflecting a close-knit community, potentially with a lower-than-average vaccination rate [CITE Minnesota, other outbreaks].
