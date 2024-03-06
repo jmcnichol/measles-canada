@@ -61,10 +61,9 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
 }
 
 # runs the simulations 
-measles.sim <- function(vax.rate,pop.size,I0,pars){
+measles.sim <- function(vax.rate,pop.size,I0,pars,nsims){
   #pop.size #total population size
-  
-  nsims <- 1000 #number of simulations
+
   VacFraction = vax.rate # -- VAX DATA WILL GO HERE -
   S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
   xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
