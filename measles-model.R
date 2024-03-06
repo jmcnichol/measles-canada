@@ -53,7 +53,7 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
       day[k] <- floor(ctime[k]) #time in days
       inci[k] <- as.numeric(output$E[k] < x[3]) # x[3] = E; this flags if there was an incident we will add it later
       ## when Q is turned on the else gives an error on the first iter
-        if (any(is.na(x))) {
+        if (any(is.na(x)) | (x[3] ==0 & x[4] == 0)) {
             break 
         } else {output[k+1,] <- c(x,ctime[k],day[k],inci[k])} 
     }
