@@ -50,7 +50,7 @@ SEIR.model <- function (x, params, nstep) { #function to simulate stochastic SIR
     #  if (x[3] == 0 & x[4] == 0){break} #if E and I are 0 then we done 
       x <- SEIR.onestep(x,params)
       ctime[k] <- x[1] + sum(output[1:k,1])  # compute cumulative time 
-      day[k] <- ceiling(ctime[k]) #time in days
+      day[k] <- floor(ctime[k]) #time in days
       inci[k] <- as.numeric(output$E[k] < x[3]) # x[3] = E; this flags if there was an incident we will add it later
       ## when Q is turned on the else gives an error on the first iter
         if (any(is.na(x))) {
@@ -69,7 +69,8 @@ measles.sim <- function(vax.rate,pop.size,I0,pars,nsims){
   xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
   # R0 should be 12-18 in the absence of any qs etc, let's use that to set beta 
   #  R0=15; and in my model, R0 = N beta (1/(gamma+qi) ( k/(k+qs)), or if q=0, simply R0=beta/gamma, 
-  b= 15*(1/8)/pop.size # beta = R0*gamma/N i think
+  gamma = 1/4
+  b= 15*gamma/pop.size # beta = R0*gamma/N i think
   nstep = 50000
   
   params <- list(beta = b,
@@ -80,7 +81,7 @@ measles.sim <- function(vax.rate,pop.size,I0,pars,nsims){
                  qi=pars$qi, # if on: 0.45 ( 0.2-0.72)  quarantine for infectious people (send home/isolate)
                  l=1/15, # mean duration of quarantine is 21 days but people do it imperfectly but some are infectious, gah! 
                  k=1/10, # mean E duration of 6 days before infectiousness
-                 gamma=1/4) # 8 day infectiousness wo the qi  ) # parameters
+                 gamma=gamma) # 8 day infectiousness wo the qi  ) # parameters
   
   data <- vector(mode='list',length=nsims) #initialize list to store the output
   set.seed(12345)
