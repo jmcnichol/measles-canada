@@ -70,46 +70,45 @@ Canada has high levels of measles vaccination overall, with Statistics Canada re
 
   \caption[Vaccination requirements by province]{Vaccination requirements in schools in Canadian regions, with data and/or reports of vaccination rates}
   \label{tab:vaxrequire}
-  \begin{tabular}{llp{5cm}}
-Province & Required to start school? & Coverage rates \& provincial reports                                                                                                                                                \\ \hline
-NFLD     & recommended               & A recent news interview states 95\% of the pop https://www.cbc.ca/player/play/2308385347572\#:$\sim$:text=The\%20key\%20to\%20protection\%20is,was\%20a\%20traveller\%20in\%202017. \\ \hline
-PEI      & recommended               & Rates prior to grade 1 entry for 2022-2023: https://www.princeedwardisland.ca/en/publication/childhood-immunization-rates-year-20222023-school-age                                  \\ \hline
-NS       & recommended               & Data not found                                                                                                                                                                      \\ \hline
+  \begin{tabular}{lp{3cm}p{10cm}}
+	  \bf{Province} & \bf{Required to start school?} & \bf{Coverage rates \& provincial reports}                                                                                                                                                \\ \hline
+NFLD     & Recommended               & A recent news interview states 95\% of the pop https://www.cbc.ca/player/play/2308385347572\#:$\sim$:text=The\%20key\%20to\%20protection\%20is,was\%20a\%20traveller\%20in\%202017. \\ \hline
+PEI      & Recommended               & Rates prior to grade 1 entry for 2022-2023: https://www.princeedwardisland.ca/en/publication/childhood-immunization-rates-year-20222023-school-age                                  \\ \hline
+NS       & Recommended               & Not found                                                                                                                                                                      \\ \hline
 NB       & Required                  & NA                                                                                                                                                                                  \\ \hline
-QC       & recommended               & Data not found, but some news reports suggest some schools as low as 75\%                                                                                                                \\ \hline
+QC       & Recommended               & Data not found, but some news reports suggest some schools as low as 75\%                                                                                                                \\ \hline
 ON       & Required                  & NA                                                                                                                                                                                  \\ \hline
 MB       & Required                  & NA                                                                                                                                                                                  \\ \hline
-SK       & recommended               & https://www.saskatchewan.ca/residents/health/accessing-health-care-services/immunization-services/immunization-rates-in-saskatchewan                                                \\ \hline
-AB       & recommended               & http://www.ahw.gov.ab.ca/IHDA\_Retrieval/selectSubCategory.do                                                                                                                       \\ \hline
-BC       & recommended               & http://www.bccdc.ca/health-professionals/data-reports/immunizations                                                                                                                 \\ \hline
-Yukon    & recommended               & Not found                                                                                                                                                                           \\ \hline
-Nunavut  & recommended               & Not found                                                                                                                                                                           \\ \hline
-NWT      & recommended               & Not found
+SK       & Recommended               & https://www.saskatchewan.ca/residents/health/accessing-health-care-services/immunization-services/immunization-rates-in-saskatchewan                                                \\ \hline
+AB       & Recommended               & http://www.ahw.gov.ab.ca/IHDA\_Retrieval/selectSubCategory.do                                                                                                                       \\ \hline
+BC       & Recommended               & http://www.bccdc.ca/health-professionals/data-reports/immunizations                                                                                                                 \\ \hline
+Yukon    & Recommended               & Not found                                                                                                                                                                           \\ \hline
+Nunavut  & Recommended               & Not found                                                                                                                                                                           \\ \hline
+NWT      & Recommended               & Not found
 \end{tabular}
 \end{table}
 
 
 \begin{table}[]
-\caption{}
-\label{tab:my-table}
-\begin{tabular}{lp{5cm}p{5cm}p{5cm}}
-\hline
-Parameter &
-  Value &
-  Description &
-  Reference or rationale \\ \hline
+\centering
+\caption{Parameters}
+\label{tab:pars}
+\begin{tabular}{p{2cm}p{4cm}p{6cm}p{5cm}}
+\bf{Parameter} &
+\bf{Value} &
+\bf{Description} &
+\bf{Reference or rationale} \\ \hline
 $R_0$ &
   15 &
   Basic reproduction number. &
   \begin{tabular}[c]{@{}l@{}}Reported range 12-18.\\ {[}REFS{]}\end{tabular} \\ \hline
 $c$ &
   0.3 &
-  “Exposed” individuals are infectious before onset of rash &
+  ``Exposed” individuals are infectious before onset of rash &
   4 days infectiousness prior to rash onset \\ \hline
 $v$ &
-  0.005 per day (strong), 0 (weaker) &
-  Supplementary vaccination of susceptibles. Not all jurisdictions strongly encourage additional vaccination in the general population as an outbreak response. &
-  \begin{tabular}[c]{@{}l@{}}British Columbia vaccination in 2019 outbreak (rough estimate)\\ {[}REF{]}\end{tabular} \\ \hline
+  0.005 per day (strong); 0 (weaker) &
+  Supplementary vaccination of susceptibles. Not all jurisdictions strongly encourage additional vaccination in the general population as an outbreak response. & British Columbia vaccination in 2019 outbreak (rough estimate) {[}REF{]} \\ \hline
 $q_s$ &
   0.03 per day &
   Isolation of susceptible individuals following contact tracing, exposure notifications &
