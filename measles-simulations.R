@@ -1,5 +1,6 @@
 # this script runs the simulations Caroline wants 
 
+# start with a workspace that's not cluttered with stuff from a previous session 
 # needs to source the model first 
 source("measles-model.R")  # read the model functions
 
@@ -7,16 +8,16 @@ source("measles-model.R")  # read the model functions
 params.strong <- list(
     c=0.3,
     v=0.005,
-    qs = 0.03,
-    qspep = 0.05,
-    qi=0.15)
+    qs = 0.09,
+    qspep = 0.15,
+    qi=0.4)
 # WEAK INTERVENTIONS
 params.weak <- list(
     c=0.3,
     v=0,
-    qs = 0.02,
-    qspep = 0.04,
-    qi=0.1)
+    qs = 0.04,
+    qspep = 0.1,
+    qi=0.2)
 params.none <- list(
     c=0.3,
     v=0,
@@ -24,16 +25,28 @@ params.none <- list(
     qspep = 0,
     qi=0)
 
-# ---- small pop: run all the strong interventions 
+# QX 2011 700+ cases mostly from one ss event plus sustained transmission, other
+# intros dying out, but they didn't do qi and qspep and qs, jsut mainly v and a bit of qspep. 
+# good example for v weak interventions
 
-outsmall95 = measles.sim(0.95, 1000, 2, params.strong, 300) 
-outsmall90 = measles.sim(0.9, 1000, 2, params.strong, 300) 
-outsmall85 = measles.sim(0.85, 1000, 2, params.strong, 300) 
-outsmall80 = measles.sim(0.8, 1000, 2, params.strong, 300) 
-outsmall75 = measles.sim(0.75, 1000, 2, params.strong, 300) 
-outsmall70 = measles.sim(0.7, 1000, 2, params.strong, 300) 
-outsmall65 = measles.sim(0.65, 1000, 2, params.strong, 300) 
-outsmall60 = measles.sim(0.6, 1000, 2, params.strong, 300) 
+# BC 500+ cases in 2014 in FH outbreak in NL but LOW vax rates 
+# Lyon i'm not sure what was happening, same w Brooklyn 
+
+# ---- small pop: run all the strong interventions 
+N=300
+outsmall95 = measles.sim(0.95, 1000, 2, params.strong, N) 
+outsmall90 = measles.sim(0.9, 1000, 2, params.strong, N) 
+outsmall85 = measles.sim(0.85, 1000, 2, params.strong, N) 
+outsmall80 = measles.sim(0.8, 1000, 2, params.strong, N) 
+outsmall75 = measles.sim(0.75, 1000, 2, params.strong, N) 
+outsmall70 = measles.sim(0.7, 1000, 2, params.strong, N) 
+outsmall65 = measles.sim(0.65, 1000, 2, params.strong, N) 
+outsmall60 = measles.sim(0.6, 1000, 2, params.strong, N) 
+outsmall55 = measles.sim(0.55, 1000, 2, params.strong, N) 
+outsmall50 = measles.sim(0.55, 1000, 2, params.strong, N) 
+
+
+
 
 # ---- small pop: run some of the weaker interventions 
 
@@ -43,6 +56,8 @@ outsmall90weak = measles.sim(0.9, 1000, 3, params.weak, 300)
 outsmall80weak = measles.sim(0.8, 1000, 3, params.weak, 300) 
 outsmall70weak = measles.sim(0.7, 1000, 3, params.weak, 300) 
 outsmall60weak = measles.sim(0.6, 1000, 3, params.weak, 300) 
+
+save.image(file = "smallpops.Rdata") 
 
 
 # ---- large pop: run all the strong interventions
