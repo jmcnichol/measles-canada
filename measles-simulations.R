@@ -11,13 +11,13 @@ params.strong <- list(
     qs = 0.09,
     qspep = 0.15,
     qi=0.4)
-# WEAK INTERVENTIONS
+# WEAK INTERVENTIONS: int pars set to 0.6* strong ones 
 params.weak <- list(
     c=0.3,
-    v=0,
-    qs = 0.04,
-    qspep = 0.1,
-    qi=0.2)
+    v=0.003,
+    qs = 0.09*0.6,
+    qspep = 0.15*0.6,
+    qi=0.4*0.6)
 params.none <- list(
     c=0.3,
     v=0,
@@ -52,12 +52,16 @@ outsmall50 = measles.sim(0.55, 1000, 2, params.strong, N)
 
 # start with 3 cases. with weaker interventions they are less vigilant and the measures 
 # begin later 
-outsmall90weak = measles.sim(0.9, 1000, 3, params.weak, 300) 
-outsmall80weak = measles.sim(0.8, 1000, 3, params.weak, 300) 
-outsmall70weak = measles.sim(0.7, 1000, 3, params.weak, 300) 
-outsmall60weak = measles.sim(0.6, 1000, 3, params.weak, 300) 
+outsmall90weak = measles.sim(0.9, 1000, 3, params.weak, N) 
+outsmall80weak = measles.sim(0.8, 1000, 3, params.weak, N) 
+outsmall70weak = measles.sim(0.7, 1000, 3, params.weak, N) 
+outsmall60weak = measles.sim(0.6, 1000, 3, params.weak, N) 
 
-save.image(file = "smallpops.Rdata") 
+outsmall85weak = measles.sim(0.85, 1000, 3, params.weak, N) 
+outsmall75weak = measles.sim(0.75, 1000, 3, params.weak, N) 
+outsmall65weak = measles.sim(0.65, 1000, 3, params.weak, N) 
+
+save.image(file = "smallpops4.Rdata") 
 
 
 # ---- large pop: run all the strong interventions
@@ -76,6 +80,8 @@ outlarge80weak = measles.sim(0.8,  8000, 3, params.weak, 10)
 outlarge70weak = measles.sim(0.7,  8000, 3, params.weak, 10)
 
 
+
+save.image(file = "largepops.Rdata") 
 
 
 # ---- run all the w
