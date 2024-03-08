@@ -116,7 +116,15 @@ abother= read_csv("Data/Vaccination/Alberta childhood coverage by geography.csv"
 # here there are much more highly-resolved geographies (subzones) 
 
 ggplot(abother, aes(x=`Immunization Percent`, fill=`Immunization Type`))+
-    geom_histogram(position = "dodge", alpha=0.9)+facet_wrap(~`Immunization Type`,nrow = 2)
+  geom_histogram(position = "dodge", alpha=0.9)+
+  facet_wrap(~`Immunization Type`,nrow = 2) +
+  labs(x="Vaccination coverage", y = "Count") +
+  theme_minimal() +
+  guides(fill="none") 
+
+ggsave(,filename="AB.png",path="Plots/",
+       device = "png", dpi=300, bg="white",width = 4, height=4)
+
 # hm. kind of hard to see 
 
 ggplot(abother, aes(x=`Immunization Type`,y=`Immunization Percent`))+
@@ -127,7 +135,11 @@ ggplot(abother, aes(x=`Immunization Type`,y=`Immunization Percent`))+
 
 vchschools = read_csv("Data/Vaccination/VCH school coverage.csv")
 glimpse(vchschools)
-ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram()
+ggplot(vchschools, aes(x=`Coverage (%)`))+geom_histogram()+
+  labs(x="Vaccination coverage", y = "Count") +
+  theme_minimal() 
+ggsave(,filename="VSB.png",path="Plots/",
+       device = "png", dpi=300, bg="white",width = 4, height=4)
 
 # we should add a few more from the table J added in the google doc
 # but already these figures give a sense of what the variability is 
@@ -206,7 +218,13 @@ skvax %>%
   filter(str_detect(`Immunization Type`,"^7 years 2 doses|24 months 1 dose")) %>%
   ggplot(aes(x=`Immunization Percent`, fill=`Immunization Type`))+
   geom_histogram(position = "dodge", alpha=0.9, binwidth=0.9) +
-  facet_wrap(~`Immunization Type`,nrow = 2)
+  facet_wrap(~`Immunization Type`,nrow = 2)+
+  labs(x="Vaccination coverage", y = "Count") +
+  theme_minimal() +
+  guides(fill="none") 
+
+ggsave(,filename="SK.png",path="Plots/",
+       device = "png", dpi=300, bg="white",width = 4, height=4)
 
 skvax %>%
   filter(str_detect(`Immunization Type`,"^7 years 2 doses|24 months 1 dose")) %>%
