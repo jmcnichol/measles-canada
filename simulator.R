@@ -23,7 +23,6 @@
 #' @param qi rate of quarantine for infectious people (send home/isolate). qi=0 if no interventions.
 #' @param l mean duration of quarantine (people do it imperfectly but some are infectious). default value is 1/15.
 #' @param k mean E duration of 6 days before infectiousness. default value is 1/10.
-#' @param seed a seed for random generation.
 #' 
 #' @returns A datafame with 12 columns (number of rows varies depending on how long outbreaks last): 
 #' * `simnum` entries from 1 to nsims
@@ -58,8 +57,7 @@ measles.seir.sim <- function(vax.rate,
                              qspep = 0,
                              qi = 0,
                              l = 1/15,
-                             k = 1/10,
-                             seed = Sys.time()){
+                             k = 1/10){
   
   SEIR.onestep <- function (x, params) { #function to calculate one step of stochastic SEIR
     S <- x[2] #local variable for susceptible
@@ -134,7 +132,7 @@ measles.seir.sim <- function(vax.rate,
                  gamma=gamma) 
   
   data <- vector(mode='list',length=nsims) #initialize list to store the output
-  set.seed(seed)
+  set.seed(12345)
   for (k in 1:nsims) { 
     data[[k]] <- as.data.frame(SEIR.model(xstart,params,nstep))
   }
