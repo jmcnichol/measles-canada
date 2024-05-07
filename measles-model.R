@@ -72,7 +72,7 @@ measles.sim <- function(vax.rate,pop.size,I0,pars,nsims){
   gamma = 1/4
   b= 15*gamma/pop.size # beta = R0*gamma/N i think
   nstep = 50000
-  
+  if (is.null(pars$k)) {pars$k = 1/10} # for backwards compatibility
   params <- list(beta = b,
                  c=pars$c,
                  v=pars$v, # if on: 0.05 ( 0.01-0.1) rate of vaccination of S . makes a diff! 
