@@ -142,7 +142,9 @@ measles.seir.sim.JV <- function(vax.rate = 0.75,
   # data <- data.frame(data,vax = as.factor(rep(as.character(vax.rate))))
   # data <- data.frame(data,par_qs = as.factor(rep(as.character(qs))))
   # data <- data.frame(data,par_qspep = as.factor(rep(as.character(qspep))))
-  data <- data.frame(data,par_qi = as.factor(rep(as.character(qi))))
+  # data <- data.frame(data,par_qi = as.factor(rep(as.character(qi))))
+  data <- data.frame(data,par_v = as.factor(rep(as.character(v))))
+  
   
   
   return(data)

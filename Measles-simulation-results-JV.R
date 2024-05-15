@@ -63,10 +63,12 @@ ggsave(filename="large-strong-duration-scatter-scalefree.png",path="Plots/Outbre
 # load ("smallpops_qs_change.Rdata")
 # load ("smallpops_qspep_change.Rdata")
 # load ("smallpops_qi_change.Rdata")
+load ("smallpops_v_change.Rdata")
 
 # load ("largepops_qs_change.Rdata")
 # load ("largepops_qspep_change.Rdata")
 # load ("largepops_qi_change.Rdata")
+# load ("largepops_v_change.Rdata")
 
 
 # qs changing
@@ -185,4 +187,38 @@ ridge.qi_duration <- simdata_qi %>% group_by(simnum,par_qi) %>% summarise(size =
   scale_color_manual(values=cols)
 
 ggsave(filename="large_qi_changing_size.png",path="Plots/Changing one parameter/",
+       device = "png", dpi=300, bg="white",width = 4, height=6)
+
+
+
+# v changing
+
+simdata_v <- rbind(small_v1, small_v3, small_v5, small_v7, small_v9)
+# simdata_v <- rbind(large_v1, large_v3, large_v5, large_v7, large_v9)
+
+ridge.v_duration <- simdata_v %>% group_by(simnum,par_v) %>% summarise(duration = max(day)) %>%
+  ggplot(aes(x = duration, y=par_v, color=par_v,fill=par_v)) +
+  geom_density_ridges(stat = "binline",
+                      bins = 40, draw_baseline = FALSE, alpha = 0.2) +
+  theme_minimal() +
+  labs(x="Outbreak duration", y = "v") +
+  guides(fill="none", color="none") +
+  scale_fill_manual(values = cols)+
+  scale_color_manual(values=cols)
+
+ggsave(filename="small_v_changing_duration.png",path="Plots/Changing one parameter/",
+       device = "png", dpi=300, bg="white",width = 4, height=6)
+
+
+ridge.v_size <- simdata_v %>% group_by(simnum,par_v) %>% summarise(size = sum(inci)) %>%
+  ggplot(aes(x = size, y=par_v, color=par_v,fill=par_v)) +
+  geom_density_ridges(stat = "binline",
+                      bins = 40, draw_baseline = FALSE, alpha = 0.2) +
+  theme_minimal() +
+  labs(x="Outbreak size", y = "v") +
+  guides(fill="none", color="none") +
+  scale_fill_manual(values = cols)+
+  scale_color_manual(values=cols)
+
+ggsave(filename="small_v_changing_size.png",path="Plots/Changing one parameter/",
        device = "png", dpi=300, bg="white",width = 4, height=6)

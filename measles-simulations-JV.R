@@ -86,3 +86,26 @@ large_qi7 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, qi = 0.7)
 
 # save.image(file = "smallpops_qi_change.Rdata") 
 save.image(file = "largepops_qi_change.Rdata") 
+
+
+
+# Here I change v as [0.001,0.003,0.005,0.007,0.009]
+#! Each time I want to run the code, for each changing parameter I change the added column in Simulator-JV.R.
+
+
+small_v1 = measles.seir.sim.JV(nsims = 1000, v=0.001)
+small_v3 = measles.seir.sim.JV(nsims = 1000, v=0.003)
+small_v5 = measles.seir.sim.JV(nsims = 1000, v=0.005)
+small_v7 = measles.seir.sim.JV(nsims = 1000, v=0.007)
+small_v9 = measles.seir.sim.JV(nsims = 1000, v=0.009)
+
+large_v1 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, v=0.001)
+large_v3 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, v=0.003)
+large_v5 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, v=0.005)
+large_v7 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, v=0.007)
+large_v9 = measles.seir.sim.JV(pop.size = 8000, nsims = 100, v=0.009)
+
+
+
+# save.image(file = "smallpops_v_change.Rdata") 
+save.image(file = "largepops_qi_change.Rdata") 
