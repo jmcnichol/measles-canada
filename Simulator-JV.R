@@ -47,7 +47,7 @@ require(dplyr)
 measles.seir.sim.JV <- function(vax.rate = 0.75,
                              pop.size = 1000,
                              I0 = 2,
-                             nsims = 300,
+                             nsims = 1000,
                              nstep = 50000,
                              R0 = 15,
                              c = 0.3,
@@ -57,7 +57,7 @@ measles.seir.sim.JV <- function(vax.rate = 0.75,
                              qspep = 0.1875,
                              qi = 0.4,
                              l = 1/15,
-                             k = 1/14){
+                             k = 1/12){
   
   SEIR.onestep <- function (x, params) { #function to calculate one step of stochastic SEIR
     S <- x[2] #local variable for susceptible
@@ -139,10 +139,10 @@ measles.seir.sim.JV <- function(vax.rate = 0.75,
   
   data <- bind_rows(data, .id="simnum")
   # Here, choose the column you want to add to the dataframe based on what you need
-  # data <- data.frame(data,vax = as.factor(rep(as.character(vax.rate))))
-  # data <- data.frame(data,par_qs = as.factor(rep(as.character(qs))))
-  # data <- data.frame(data,par_qspep = as.factor(rep(as.character(qspep))))
-  # data <- data.frame(data,par_qi = as.factor(rep(as.character(qi))))
+  data <- data.frame(data,vax = as.factor(rep(as.character(vax.rate))))
+  data <- data.frame(data,par_qs = as.factor(rep(as.character(qs))))
+  data <- data.frame(data,par_qspep = as.factor(rep(as.character(qspep))))
+  data <- data.frame(data,par_qi = as.factor(rep(as.character(qi))))
   data <- data.frame(data,par_v = as.factor(rep(as.character(v))))
   
   
