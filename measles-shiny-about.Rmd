@@ -1,0 +1,12 @@
+---
+title: "About"
+output: html_document
+---
+
+This Shiny web application was developed by Jennifer McNichol. R scripts to create this Shiny app are available on [GitHub](https://github.com/jmcnichol/measles-canada).
+
+The model behind this app was developed by Caroline Colijn and Jennifer McNichol in response to the increase in measles cases in Canada in early 2024. R code for the model is available on [GitHub](https://github.com/jmcnichol/measles-canada).
+
+For more information see [PHAC Rapid Risk Assessment](https://www.canada.ca/en/public-health/services/emergency-preparedness-response/rapid-risk-assessments-public-health-professionals/rapid-risk-assessment-measles-public-health-implications-2024.html).
+
+
