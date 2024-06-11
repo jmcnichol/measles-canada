@@ -44,20 +44,20 @@
 #' 
 #' 
 require(dplyr)
-measles.seir.sim <- function(vax.rate,
-                             pop.size,
-                             I0,
-                             nsims,
-                             nstep,
+measles.seir.sim.JV <- function(vax.rate = 0.75,
+                             pop.size = 1000,
+                             I0 = 2,
+                             nsims = 1000,
+                             nstep = 50000,
                              R0 = 15,
-                             c,
-                             v,
+                             c = 0.3,
+                             v = 0.005,
                              gamma = 1/4,
-                             qs = 0,
-                             qspep = 0,
-                             qi = 0,
+                             qs = 0.06,
+                             qspep = 0.1875,
+                             qi = 0.4,
                              l = 1/15,
-                             k = 1/10){
+                             k = 1/12){
   
   SEIR.onestep <- function (x, params) { #function to calculate one step of stochastic SEIR
     S <- x[2] #local variable for susceptible
@@ -120,7 +120,7 @@ measles.seir.sim <- function(vax.rate,
   VacFraction = vax.rate 
   S0 <- round((1-VacFraction)*pop.size) # initial number susceptible 
   xstart <- c(time=0, S=S0, E=0, I = I0, R = pop.size-S0-I0, Qs=0, Qr=0) #initial conditions
-
+  
   params <- list(beta = R0*gamma/pop.size, 
                  c=c,
                  v=v, 
@@ -138,7 +138,14 @@ measles.seir.sim <- function(vax.rate,
   }
   
   data <- bind_rows(data, .id="simnum")
+  # Here, choose the column you want to add to the dataframe based on what you need
   data <- data.frame(data,vax = as.factor(rep(as.character(vax.rate))))
+  data <- data.frame(data,par_qs = as.factor(rep(as.character(qs))))
+  data <- data.frame(data,par_qspep = as.factor(rep(as.character(qspep))))
+  data <- data.frame(data,par_qi = as.factor(rep(as.character(qi))))
+  data <- data.frame(data,par_v = as.factor(rep(as.character(v))))
+  
+  
   
   return(data)
 }

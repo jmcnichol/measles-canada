@@ -120,7 +120,7 @@ simdata %>% group_by(day,vax) %>% filter(simnum==8) %>% summarise(size = sum(inc
 ggplot(aes(x=day, y=size, fill=vax)) + 
   geom_bar(stat="identity")+
   facet_wrap(~vax, ncol=2) +
-  labs(x="Time", y = "Incident infections") +
+  labs(x="Time (days)", y = "Incident infections") +
   theme_minimal() +
   guides(fill="none") +
   scale_fill_manual(values = cols)+
