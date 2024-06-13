@@ -8,45 +8,51 @@ library(readr)
 library(tidyr)
 library(stringr)
 library(parallel)
+library(rmarkdown)
+library(markdown)
+
+source("simulator.R")
 
 server <- function(input, output, session) {
   
   
+  
   output$mainplot <- renderPlotly({
     
-  simdata <- measles.seir.sim(vax.rate = input$vaxFrac, 
-                              pop.size = input$N ,
-                              I0 = 2, 
-                              qs = (1/input$contactTime)*(0.5)*(0.5)*(input$isolateEff/100), 
-                              qi = input$isolateI,
-                              qspep = (1/input$contactTime)*(0.5)*(input$pepAcc/100)*(0.5))
-  
-  ##-- ggplot of outbreaks --####
-  outbreak.plot <- simdata %>%
-    mutate(week = day%/%7) %>% 
-    group_by(week,vax,simnum) %>% 
-    summarise(size=sum(inci)) %>% 
-    group_by(week,vax) %>%
-    summarise(medsize=median(size)) %>%
-    ggplot(aes(y = medsize,x=week,color=vax)) +
-    # geom_point(size = 0.5, alpha = 0.3) + 
-    geom_point() +
-    geom_line() +
-    labs(x = "Weeks since first case",
-         y = "Number of cases") +
-    theme_minimal(base_size = 12) +
-    theme(legend.position = "none") 
-  
-  #convert ggplot to plotly
-  mainplot <- ggplotly(outbreak.plot) 
-
-  
-  # function output to ui 
-  mainplot
-  
+    simdata <- measles.seir.sim(vax.rate = input$vaxFrac, 
+                                pop.size = input$N ,
+                                I0 = 2, 
+                                qs = (1/input$contactTime)*(0.5)*(0.5)*(input$isolateEff/100), 
+                                qi = input$isolateI,
+                                qspep = (1/input$contactTime)*(0.5)*(input$pepAcc/100)*(0.5),
+                                nsims=25)
+    
+    ##-- ggplot of outbreaks --####
+    outbreak.plot <- simdata %>%
+      mutate(week = day%/%7) %>% 
+      group_by(week,vax,simnum) %>% 
+      summarise(size=sum(inci)) %>% 
+      group_by(week,vax) %>%
+      summarise(medsize=median(size)) %>%
+      ggplot(aes(y = medsize,x=week,color=vax)) +
+      # geom_point(size = 0.5, alpha = 0.3) + 
+      geom_point() +
+      geom_line() +
+      labs(x = "Weeks since first case",
+           y = "Number of cases") +
+      theme_minimal(base_size = 12) +
+      theme(legend.position = "none") 
+    
+    #convert ggplot to plotly
+    mainplot <- ggplotly(outbreak.plot) 
+    
+    
+    # function output to ui 
+    mainplot
+    
   })
-
- 
+  
+  
 }
 
 
@@ -55,7 +61,7 @@ ui <- fluidPage(
   titlePanel("Modeling measles outbreaks in Canada"),
   hr(),
   p(div(HTML("Disclaimer: This simulation is for research and educational purposes only."))),
-  p(HTML("<b>User instructions:</b> blah blah not sure what plots im going to generate yet. note to self: ill also put a tab with info about the model and how that relates to which pars user changes to better understand the model")),
+  p(HTML("<b>User instructions:</b> This interactive tool implements a stochastic SEIR model. Adjust intervetion paramters to model measles outbreaks. To see how the sliders below translate to model parameters see the model information tab.   ")),
   
   
   sidebarLayout(
@@ -100,20 +106,20 @@ ui <- fluidPage(
                               h3("Measles outbreak"),
                               plotlyOutput("mainplot"),
                               br(),
-                            
+                              
                               br(),
-                              )
+                            )
                           )
                  ),
                  tabPanel("Model information",
                           fluidPage(
                             br(),
-                            includeMarkdown("measles-shiny-info.rmd"),
+                            includeMarkdown("measles-shiny-info.Rmd"),
                           )),
                  tabPanel("About",
                           fluidPage(
                             br(),
-                            includeMarkdown("measles-shiny-about.rmd"),
+                            withMathJax(includeMarkdown("measles-shiny-about.Rmd")),
                           )),
                  
       ),

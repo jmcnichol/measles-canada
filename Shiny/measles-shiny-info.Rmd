@@ -1,0 +1,41 @@
+---
+output: html_document
+---
+
+##### Measles SEIR model
+
+##### Parameters
+
+$R_0$: the reproductive number. 15 by default.
+
+$c$: infectiousness in $E$. default is 0.03.
+
+$v$: rate of vaccination of $S$. default is 0.005.
+
+$\gamma$: 8 day infectiousness without $q_i$. default is 1/4.
+
+$l$: mean duration of quarantine (people do it imperfectly but some are infectious). default value is 1/15.
+
+$k$: mean $E$ duration of 6 days before infectiousness. default value is 1/10.
+
+##### Intervetion parameters 
+
+The default for all intervention parameters are 0 (no interventions) and sliders are used to adjust some of the components of the value (see equations below). Bold values are ajusted by sliders.
+
+$q_s$: the rate that we find and quarantine susceptible people. 0 if no interventions.
+
+- $q_s$ = (1/**time to contact exposed people**) $\times$ (fraction not PEP eligible) $\times$ (fraction of susceptible who want to isolate) $\times$ (**effectiveness of isolation**) </br>
+  = (1/**time to contact exposed people**) $\times$ (0.5) $\times$ (0.5) $\times$ (**effectiveness of isolation**) 
+
+$q_{spep}$: the rate of quarantine and/or PEP for exposed people. 0 if no interventions.
+
+- $q_{spep}$ = (1/**time to contact exposed people**) $\times$ (fraction PEP eligible) $\times$ (**acceptance rate of PEP**) $\times$ (effectiveness of PEP) </br>
+  = (1/**time to contact exposed people**) $\times$ (0.5) $\times$ (**acceptance rate of PEP**) $\times$ (0.5) 
+
+$q_i$: rate of quarantine for infectious people (send home/isolate). 0 if no interventions. This parameter is adjusted directly by the **proportion of individuals who are contagious and isolate** slider.
+
+
+
+  
+
+    
