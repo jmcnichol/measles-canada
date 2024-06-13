@@ -8,4 +8,4 @@ This repository contains code to implement a stochastic SEIR model and simulatio
 
 `simulator.R` contains all the code necessary to run the model. 
 
-`\Shiny` contains code relevent to the R Shiny app implementation found here: https://jmcn.shinyapps.io/measles-canada/ 
+`/Shiny` contains code relevent to the R Shiny app implementation found here: https://jmcn.shinyapps.io/measles-canada/ 
