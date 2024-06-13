@@ -1,0 +1,13 @@
+name: measles-canada
+title: measles-canada
+username: jmcn
+account: jmcn
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 12174774
+bundleId: 8739717
+url: https://jmcn.shinyapps.io/measles-canada/
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: measles-app.R|measles-shiny-about.html|measles-shiny-info.html|measles-shiny-plots.R

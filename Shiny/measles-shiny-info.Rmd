@@ -27,9 +27,9 @@ $q_s$: the rate that we find and quarantine susceptible people. 0 if no interven
 - $q_s$ = (1/**time to contact exposed people**) $\times$ (fraction not PEP eligible) $\times$ (fraction of susceptible who want to isolate) $\times$ (**effectiveness of isolation**) </br>
   = (1/**time to contact exposed people**) $\times$ (0.5) $\times$ (0.5) $\times$ (**effectiveness of isolation**) 
 
-$q_{spep}$: the rate of quarantine and/or PEP for exposed people. 0 if no interventions.
+$q_{spep}$: the rate of quarantine and/or PEP for exposed people. 0 if no interventions. $q_{spep}=q_s+q_{pep}$.
 
-- $q_{spep}$ = (1/**time to contact exposed people**) $\times$ (fraction PEP eligible) $\times$ (**acceptance rate of PEP**) $\times$ (effectiveness of PEP) </br>
+- $q_{pep}$ = (1/**time to contact exposed people**) $\times$ (fraction PEP eligible) $\times$ (**acceptance rate of PEP**) $\times$ (effectiveness of PEP) </br>
   = (1/**time to contact exposed people**) $\times$ (0.5) $\times$ (**acceptance rate of PEP**) $\times$ (0.5) 
 
 $q_i$: rate of quarantine for infectious people (send home/isolate). 0 if no interventions. This parameter is adjusted directly by the **proportion of individuals who are contagious and isolate** slider.
